@@ -43,7 +43,12 @@ namespace Homm.Client
 
         private void NextMove()
         {
-            throw new NotImplementedException();
+            if (currentData.IsDead)
+                client.Wait(HommRules.Current.RespawnInterval);
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         //TODO: Настроить коэффиценты
@@ -52,14 +57,22 @@ namespace Homm.Client
 
         private double GetPileValue(ResourcePile pile)
         {
-            return pile.Amount * HommRules.Current.ResourcesGainScores
-                   + GetCounterMeetingPropability(UnitRelation[pile.Resource]) * ArmyEfficencyCoefficent
-                   + resourcesData.GetRarity(pile.Resource) * ResourceRarityCoefficent;
+            return HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource);
         }
+
+        private double GetDegreeOfNeed(Resource resourceType)
+        {
+            return GetCounterMeetingPropability(UnitRelation[resourceType]) * ArmyEfficencyCoefficent
+                   + resourcesData.GetRarity(resourceType) * ResourceRarityCoefficent;
+        }
+
+        //TODO: Настроить коэффицент
+        private const double MineCoefficent = 1;
 
         private double GetMineValue(Mine mine)
         {
-            throw new NotImplementedException();
+            return (HommRules.Current.MineOwningDailyScores +
+                    GetDegreeOfNeed(mine.Resource) * HommRules.Current.MineDailyResourceYield) * MineCoefficent;
         }
 
         private double GetDwellingValue(Dwelling dwelling)
