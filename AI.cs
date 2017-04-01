@@ -16,11 +16,17 @@ namespace Homm.Client
             this.client = client;
             currentData = initialData;
             client.OnSensorDataReceived += OnDataUpdated;
+            UpdateData();
 
             while (true)
             {
                 NextMove();
             }
+        }
+
+        private void UpdateData()
+        {
+
         }
 
         private Boolean wouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
