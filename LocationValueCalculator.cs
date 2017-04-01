@@ -102,11 +102,14 @@ namespace Homm.Client
 
         public double GetPileValue(ResourcePile pile)
         {
-            return HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource);
+            return pile == null
+                ? 0
+                : HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource);
         }
 
-        private double GetDegreeOfNeed(Resource resourceType)
+        public double GetDegreeOfNeed(Resource resourceType)
         {
+            //TODO: Вынести в переменную, чтобы считалась лишь раз между двумя обновлениями данных?
             return GetCounterMeetingPropability(UnitRelation[resourceType]) * ArmyEfficencyCoefficent
                    + ai.ResourcesData.GetRarity(resourceType) * ResourceRarityCoefficent;
         }
@@ -116,8 +119,10 @@ namespace Homm.Client
 
         public double GetMineValue(Mine mine)
         {
-            return (HommRules.Current.MineOwningDailyScores +
-                    GetDegreeOfNeed(mine.Resource) * HommRules.Current.MineDailyResourceYield) * MineCoefficent;
+            return mine == null
+                ? 0
+                : (HommRules.Current.MineOwningDailyScores +
+                   GetDegreeOfNeed(mine.Resource) * HommRules.Current.MineDailyResourceYield) * MineCoefficent;
         }
 
         public double GetDwellingValue(Dwelling dwelling)

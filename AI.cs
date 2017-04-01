@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
 
@@ -7,7 +8,7 @@ namespace Homm.Client
 {
     public class AI
     {
-        public HommClient client;
+        public readonly HommClient client;
         public HommSensorData currentData;
 
         public EnemyArmyData EnemyArmyData;
@@ -30,6 +31,25 @@ namespace Homm.Client
             }
         }
 
+        private double GetBattleProfit(ArmiesPair initialState, Combat.CombatResult result, bool isAttackerProfit = true)
+        {
+            if (isAttackerProfit && result.IsAttackerWin || !isAttackerProfit && result.IsDefenderWin)
+                return 0;
+
+            var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
+            return
+            (from type in unitTypes
+                let attackerLoss = initialState.AttackingArmy[type] - result.AttackingArmy[type]
+                let defenderLoss = initialState.DefendingArmy[type] - result.DefendingArmy[type]
+                select isAttackerProfit
+                    ? defenderLoss * UnitsConstants.Current.Scores[type] -
+                      attackerLoss * calculator.GetDegreeOfNeed(type)
+                    : //TODO: Сделать расчет войск -> ресурса (и насколько нам все же нужно ополчение?)
+                    attackerLoss * UnitsConstants.Current.Scores[type] -
+                    defenderLoss * calculator.GetDegreeOfNeed(type)
+            ).Sum();
+        }
+
         private void UpdateData()
         {
             EnemyArmyData = EnemyArmyData.Parse(currentData);
@@ -40,7 +60,6 @@ namespace Homm.Client
         {
             return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy)).IsAttackerWin;
         }
-
 
         private void NextMove()
         {
