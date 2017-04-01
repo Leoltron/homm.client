@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CVARC.V2;
 using HoMM;
 using HoMM.ClientClasses;
@@ -36,9 +37,17 @@ namespace Homm.Client
             resourcesData = ResourcesData.Parse(currentData);
         }
 
-        private bool WouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
+        private double GetBattleProfit(Combat.CombatResult result, bool isAttackerProfit=true)
         {
-            return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy)).IsAttackerWin;
+            if (isAttackerProfit && result.IsAttackerWin || !isAttackerProfit && result.IsDefenderWin)
+                return 0;
+            var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
+            
+        }
+
+        private Combat.CombatResult GetAttackResultAgainst(Dictionary<UnitType, int> enemy)
+        {
+            return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy));
         }
 
         private void NextMove()
