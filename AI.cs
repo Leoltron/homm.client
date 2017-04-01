@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CVARC.V2;
 using HoMM;
 using HoMM.ClientClasses;
@@ -13,7 +12,8 @@ namespace Homm.Client
         private HommClient client;
         private HommSensorData currentData;
 
-        private EnemyData enemyData;
+        private EnemyArmyData enemyArmyData;
+        private ResourcesData resourcesData;
 
         public AI(HommClient client, HommSensorData initialData)
         {
@@ -30,18 +30,11 @@ namespace Homm.Client
 
         private void UpdateData()
         {
-            var enemyUnitsData = new Dictionary<UnitType,int>();
-            foreach (var mapObject in currentData.Map.Objects)
-            {
-                //Не учитываю гарнизоны врага и врага, ибо хз как отличать от своих
-                if(mapObject.NeutralArmy != null)
-                    foreach (var army in mapObject.NeutralArmy.Army)
-                        enemyUnitsData.AddOrSum(army);
-            }
-            enemyData = new EnemyData(enemyUnitsData);
+            enemyArmyData = EnemyArmyData.Parse(currentData);
+            resourcesData = ResourcesData.Parse(currentData);
         }
 
-        private Boolean wouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
+        private bool WouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
         {
             return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy)).IsAttackerWin;
         }
@@ -51,33 +44,41 @@ namespace Homm.Client
             throw new NotImplementedException();
         }
 
+        //TODO: Настроить коэффиценты
+        private const double resourceRarityCoefficent = 1;
+        private const double armyEfficencyCoefficent = 1;
+         
         private double GetPileValue(ResourcePile pile)
         {
-            throw new NotImplementedException();
+            return pile.Amount * HommRules.Current.ResourcesGainScores
+                   + GetCounterMeetingPropability(unitRelation[pile.Resource]) * armyEfficencyCoefficent
+                   + resourcesData.GetRarity(pile.Resource) * resourceRarityCoefficent;
         }
 
         private void OnDataUpdated(HommSensorData data)
         {
-            currentData = data;// Не совсем увыерен, что тут еще что-то может быть, ну да ладно
+            currentData = data;// Не совсем уверен, что тут еще что-то может быть, ну да ладно
         }
 
-        public struct EnemyData
+        private static readonly Dictionary<Resource,UnitType> unitRelation = new Dictionary<Resource, UnitType>()
         {
-            private readonly Dictionary<UnitType, int> UnitAmount;
-            private readonly int amountOverall;
+            {Resource.Gold, UnitType.Militia },
+            {Resource.Ebony, UnitType.Cavalry },
+            {Resource.Glass, UnitType.Ranged },
+            {Resource.Iron, UnitType.Infantry }
+        };
 
-            public double GetPart(UnitType type)
-            {
-                if (!UnitAmount.ContainsKey(type) || amountOverall == 0)
-                    return 0;
-                return (double) UnitAmount[type] / amountOverall;
-            }
+        private static readonly Dictionary<UnitType, UnitType> unitCounters = new Dictionary<UnitType, UnitType>()
+        {
+            {UnitType.Infantry, UnitType.Cavalry },
+            {UnitType.Cavalry, UnitType.Ranged },
+            {UnitType.Ranged, UnitType.Infantry }
+        };
 
-            public EnemyData(Dictionary<UnitType, int> unitAmount) : this()
-            {
-                UnitAmount = unitAmount;
-                amountOverall = UnitAmount.Sum(u => u.Value);
-            }
+        private const double GoldMilitiaCounterConst = 1d; //TODO: Настроить константу
+        private double GetCounterMeetingPropability(UnitType type)
+        {
+            return type == UnitType.Militia ? GoldMilitiaCounterConst : enemyArmyData.GetPart(unitCounters[type]);
         }
     }
 }
