@@ -15,8 +15,9 @@ namespace Homm.Client
         private HommClient client;
         private HommSensorData currentData;
 
-        private EnemyArmyData enemyArmyData;
-        private ResourcesData resourcesData;
+        private static EnemyArmyData enemyArmyData;
+        private static ResourcesData resourcesData;
+        private int radius; //c этим еще определимся
 
         public AI(HommClient client, HommSensorData initialData)
         {
@@ -37,17 +38,9 @@ namespace Homm.Client
             resourcesData = ResourcesData.Parse(currentData);
         }
 
-        private double GetBattleProfit(Combat.CombatResult result, bool isAttackerProfit=true)
+        private bool WouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
         {
-            if (isAttackerProfit && result.IsAttackerWin || !isAttackerProfit && result.IsDefenderWin)
-                return 0;
-            var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
-            
-        }
-
-        private Combat.CombatResult GetAttackResultAgainst(Dictionary<UnitType, int> enemy)
-        {
-            return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy));
+            return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy)).IsAttackerWin;
         }
 
         private Direction TakeDecision(Dictionary<Tuple<int, int>, double> neighbours)
@@ -99,12 +92,12 @@ namespace Homm.Client
         private const double ResourceRarityCoefficent = 1;
         private const double ArmyEfficencyCoefficent = 1;
 
-        private double GetPileValue(ResourcePile pile)
+        public static double GetPileValue(ResourcePile pile)
         {
             return HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource);
         }
 
-        private double GetDegreeOfNeed(Resource resourceType)
+        private static double GetDegreeOfNeed(Resource resourceType)
         {
             return GetCounterMeetingPropability(UnitRelation[resourceType]) * ArmyEfficencyCoefficent
                    + resourcesData.GetRarity(resourceType) * ResourceRarityCoefficent;
@@ -113,13 +106,13 @@ namespace Homm.Client
         //TODO: Настроить коэффицент
         private const double MineCoefficent = 1;
 
-        private double GetMineValue(Mine mine)
+        public static double GetMineValue(Mine mine)
         {
             return (HommRules.Current.MineOwningDailyScores +
                     GetDegreeOfNeed(mine.Resource) * HommRules.Current.MineDailyResourceYield) * MineCoefficent;
         }
 
-        private double GetDwellingValue(Dwelling dwelling)
+        public static double GetDwellingValue(Dwelling dwelling)
         {
             throw new NotImplementedException();
         }
@@ -146,7 +139,7 @@ namespace Homm.Client
 
         private const double GoldMilitiaCounterConst = 1d; //TODO: Настроить константу
 
-        private double GetCounterMeetingPropability(UnitType type)
+        private static double GetCounterMeetingPropability(UnitType type)
         {
             return type == UnitType.Militia ? GoldMilitiaCounterConst : enemyArmyData.GetPart(UnitCounters[type]);
         }
