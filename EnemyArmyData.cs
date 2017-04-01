@@ -5,7 +5,7 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    internal struct EnemyArmyData
+    public struct EnemyArmyData
     {
         private readonly Dictionary<UnitType, int> UnitAmount;
         private readonly int amountOverall;

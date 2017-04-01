@@ -5,7 +5,7 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    internal struct ResourcesData
+    public struct ResourcesData
     {
         private readonly Dictionary<Resource, int> resources;
         public readonly int Total;

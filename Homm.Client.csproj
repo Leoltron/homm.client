@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AI.cs" />
-    <Compile Include="BackBrain.cs" />
+    <Compile Include="LocationValueCalculator.cs" />
     <Compile Include="DictExtensions.cs" />
     <Compile Include="EnemyArmyData.cs" />
     <Compile Include="Homm.Client.Program.cs" />
