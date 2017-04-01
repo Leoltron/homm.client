@@ -45,14 +45,14 @@ namespace Homm.Client
         }
 
         //TODO: Настроить коэффиценты
-        private const double resourceRarityCoefficent = 1;
-        private const double armyEfficencyCoefficent = 1;
+        private const double ResourceRarityCoefficent = 1;
+        private const double ArmyEfficencyCoefficent = 1;
          
         private double GetPileValue(ResourcePile pile)
         {
             return pile.Amount * HommRules.Current.ResourcesGainScores
-                   + GetCounterMeetingPropability(unitRelation[pile.Resource]) * armyEfficencyCoefficent
-                   + resourcesData.GetRarity(pile.Resource) * resourceRarityCoefficent;
+                   + GetCounterMeetingPropability(UnitRelation[pile.Resource]) * ArmyEfficencyCoefficent
+                   + resourcesData.GetRarity(pile.Resource) * ResourceRarityCoefficent;
         }
 
         private void OnDataUpdated(HommSensorData data)
@@ -60,7 +60,7 @@ namespace Homm.Client
             currentData = data;// Не совсем уверен, что тут еще что-то может быть, ну да ладно
         }
 
-        private static readonly Dictionary<Resource,UnitType> unitRelation = new Dictionary<Resource, UnitType>()
+        private static readonly Dictionary<Resource,UnitType> UnitRelation = new Dictionary<Resource, UnitType>()
         {
             {Resource.Gold, UnitType.Militia },
             {Resource.Ebony, UnitType.Cavalry },
@@ -68,7 +68,7 @@ namespace Homm.Client
             {Resource.Iron, UnitType.Infantry }
         };
 
-        private static readonly Dictionary<UnitType, UnitType> unitCounters = new Dictionary<UnitType, UnitType>()
+        private static readonly Dictionary<UnitType, UnitType> UnitCounters = new Dictionary<UnitType, UnitType>()
         {
             {UnitType.Infantry, UnitType.Cavalry },
             {UnitType.Cavalry, UnitType.Ranged },
@@ -78,7 +78,7 @@ namespace Homm.Client
         private const double GoldMilitiaCounterConst = 1d; //TODO: Настроить константу
         private double GetCounterMeetingPropability(UnitType type)
         {
-            return type == UnitType.Militia ? GoldMilitiaCounterConst : enemyArmyData.GetPart(unitCounters[type]);
+            return type == UnitType.Militia ? GoldMilitiaCounterConst : enemyArmyData.GetPart(UnitCounters[type]);
         }
     }
 }
