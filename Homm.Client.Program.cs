@@ -47,13 +47,15 @@ namespace Homm.Client
                                             // Помните, что на сервере выбор стороны осуществляется случайным образом, поэтому ваш код
                                             // должен работать одинаково хорошо в обоих случаях.
             );
+            var ai = new AI(client, sensorData);
 
+            /*
             var path = new[] { Direction.RightDown, Direction.RightUp, Direction.RightDown, Direction.RightUp, Direction.LeftDown, Direction.Down, Direction.RightDown, Direction.RightDown, Direction.RightUp };
             sensorData = client.HireUnits(1);
             foreach (var e in path)
                 sensorData = client.Move(e);
             sensorData = client.Move(Direction.RightDown);
-            client.Exit();
+            client.Exit();*/
         }
 
 
