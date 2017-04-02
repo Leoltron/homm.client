@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
+using HoMM.Robot;
 using Dwelling = HoMM.ClientClasses.Dwelling;
 using Mine = HoMM.ClientClasses.Mine;
 using ResourcePile = HoMM.ClientClasses.ResourcePile;
@@ -92,10 +93,10 @@ namespace Homm.Client
             return sum;
         }
 
-        private Direction TakeDecision(Dictionary<Tuple<int, int>, double> neighbours)
+        private HommCommand TakeDecision(Dictionary<Tuple<int, int>, double> neighbours)
         {
-            var x = ai.currentData.Location.X;
-            var y = ai.currentData.Location.Y;
+            var x = ai.CurrentData.Location.X;
+            var y = ai.CurrentData.Location.Y;
             var bestDirection = new Tuple<int, int>(0, 0);
             double max = -1;
             for (var i = -1; i <= 1; i++)
@@ -111,7 +112,7 @@ namespace Homm.Client
                     }
                 }
             }
-            return Compass[bestDirection];
+            return CommandGenerator.GetMoveCommand(Compass[bestDirection]);
         }
 
         //TODO: Настроить коэффиценты

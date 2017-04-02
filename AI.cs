@@ -8,23 +8,23 @@ namespace Homm.Client
 {
     public class AI
     {
-        public readonly HommClient client;
-        public HommSensorData currentData;
+        public readonly HommClient Client;
+        public HommSensorData CurrentData;
 
         public EnemyArmyData EnemyArmyData;
         public ResourcesData ResourcesData;
-        private int radius; //c этим еще определимся
+        private const int radius = 0; //c этим еще определимся
         private readonly LocationValueCalculator calculator;
 
 
         public AI(HommClient client, HommSensorData initialData)
         {
-            this.client = client;
-            currentData = initialData;
-            this.client.OnSensorDataReceived += OnDataUpdated;
+            Client = client;
+            CurrentData = initialData;
+            Client.OnSensorDataReceived += OnDataUpdated;
             UpdateData();
             calculator = new LocationValueCalculator(this);
-            
+
             while (true)
             {
                 NextMove();
@@ -33,7 +33,7 @@ namespace Homm.Client
 
         public double GetProfitFromAttack(Dictionary<UnitType, int> enemyArmy)
         {
-            return GetBattleProfit(new ArmiesPair(currentData.MyArmy,enemyArmy));
+            return GetBattleProfit(new ArmiesPair(CurrentData.MyArmy, enemyArmy));
         }
 
         private double GetBattleProfit(ArmiesPair initialState, bool isAttackerProfit = true)
@@ -54,30 +54,29 @@ namespace Homm.Client
                 select isAttackerProfit
                     ? defenderLoss * UnitsConstants.Current.Scores[type] -
                       attackerLoss * calculator.GetDegreeOfNeed(type)
-                    :
-                    attackerLoss * UnitsConstants.Current.Scores[type] -
-                    defenderLoss * calculator.GetDegreeOfNeed(type)
+                    : attackerLoss * UnitsConstants.Current.Scores[type] -
+                      defenderLoss * calculator.GetDegreeOfNeed(type)
             ).Sum();
         }
 
         private void UpdateData()
         {
-            EnemyArmyData = EnemyArmyData.Parse(currentData);
-            ResourcesData = ResourcesData.Parse(currentData);
+            EnemyArmyData = EnemyArmyData.Parse(CurrentData);
+            ResourcesData = ResourcesData.Parse(CurrentData);
         }
 
         private bool WouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
         {
-            return Combat.Resolve(new ArmiesPair(currentData.MyArmy, enemy)).IsAttackerWin;
+            return Combat.Resolve(new ArmiesPair(CurrentData.MyArmy, enemy)).IsAttackerWin;
         }
 
         private void NextMove()
         {
-            if (currentData.IsDead)
-                client.Wait(HommRules.Current.RespawnInterval);
+            if (CurrentData.IsDead)
+                Client.Wait(HommRules.Current.RespawnInterval);
             else
             {
-                var levels = calculator.DivideByFar(radius, currentData);
+                var levels = calculator.DivideByFar(radius, CurrentData);
                 var godnota = new Dictionary<Tuple<int, int>, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
@@ -98,7 +97,7 @@ namespace Homm.Client
 
         private void OnDataUpdated(HommSensorData data)
         {
-            currentData = data; // Не совсем уверен, что тут еще что-то может быть, ну да ладно
+            CurrentData = data; // Не совсем уверен, что тут еще что-то может быть, ну да ладно
             UpdateData();
         }
     }
