@@ -13,6 +13,7 @@ namespace Homm.Client
     internal class LocationValueCalculator
     {
         private readonly AI ai;
+        private MapObjectData currentObject;
 
         private Direction[] ways =
         {
@@ -32,6 +33,8 @@ namespace Homm.Client
             {
                 var dx = mapObject.Location.X - data.Location.X;
                 var dy = mapObject.Location.Y - data.Location.Y;
+                if (dx == 0 && dy == 0)
+                    currentObject = mapObject;
                 var distance = (int)Math.Sqrt(dx * dx + dy * dy);
                 if (distance > radius)
                     continue;
@@ -96,7 +99,6 @@ namespace Homm.Client
                 .OrderByDescending(pair => pair.Value)
                 .ToArray();
             var ourLocation = new Location(ai.CurrentData.Location.Y, ai.CurrentData.Location.X);
-            var t = ourLocation.Neighborhood;
             foreach (var max in maxs)
             {
                 foreach (var direction in ways)
@@ -107,6 +109,18 @@ namespace Homm.Client
                 }
             }
             return CommandGenerator.GetMoveCommand(Direction.Down);
+        }
+
+        private void TryDwell()
+        {
+            var ourLocation = new Location(ai.CurrentData.Location.Y, ai.CurrentData.Location.X);
+            if (Program.GetObjectAt(ai.CurrentData.Map, ourLocation) != "Dwelling")
+                return;
+            var type = currentObject.Dwelling.UnitType;
+            var resource = UnitToResource[type];
+            var countOfResource = ai.CurrentData.MyTreasury[resource];
+            var countOfGold = ai.CurrentData.MyTreasury[Resource.Gold];
+            // здесь я хотел получить стоимость юнита которого можно купить и нанять максимальное количество
         }
 
         //TODO: Настроить коэффиценты
