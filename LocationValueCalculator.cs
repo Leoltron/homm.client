@@ -13,15 +13,16 @@ namespace Homm.Client
     {
         private readonly AI ai;
 
-        public static Dictionary<Tuple<int, int>, Direction> Compass = new Dictionary<Tuple<int, int>, Direction>
-        {
-            {Tuple.Create(-1, -1), Direction.LeftDown},
-            {Tuple.Create(-1, 1), Direction.LeftUp},
-            {Tuple.Create(0, -1), Direction.Down},
-            {Tuple.Create(0, 1), Direction.Up},
-            {Tuple.Create(1, -1), Direction.RightDown},
-            {Tuple.Create(1, 1), Direction.RightUp}
-        };
+        public static readonly Dictionary<Tuple<int, int>, Direction> Compass = new Dictionary
+            <Tuple<int, int>, Direction>
+            {
+                {Tuple.Create(-1, -1), Direction.LeftDown},
+                {Tuple.Create(-1, 1), Direction.LeftUp},
+                {Tuple.Create(0, -1), Direction.Down},
+                {Tuple.Create(0, 1), Direction.Up},
+                {Tuple.Create(1, -1), Direction.RightDown},
+                {Tuple.Create(1, 1), Direction.RightUp}
+            };
 
         public LocationValueCalculator(AI ai)
         {
@@ -124,10 +125,15 @@ namespace Homm.Client
                 : HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource);
         }
 
+        public double GetDegreeOfNeed(UnitType unitType)
+        {
+            return GetDegreeOfNeed(UnitToResource[unitType]);
+        }
+
         public double GetDegreeOfNeed(Resource resourceType)
         {
             //TODO: Вынести в переменную, чтобы считалась лишь раз между двумя обновлениями данных?
-            return GetCounterMeetingPropability(UnitRelation[resourceType]) * ArmyEfficencyCoefficent
+            return GetCounterMeetingPropability(ResourceToUnit[resourceType]) * ArmyEfficencyCoefficent
                    + ai.ResourcesData.GetRarity(resourceType) * ResourceRarityCoefficent;
         }
 
@@ -158,7 +164,7 @@ namespace Homm.Client
             {Terrain.Snow, TileTerrain.Snow.TravelCost}
         };
 
-        private static readonly Dictionary<Resource, UnitType> UnitRelation = new Dictionary<Resource, UnitType>()
+        public static readonly Dictionary<Resource, UnitType> ResourceToUnit = new Dictionary<Resource, UnitType>()
         {
             {Resource.Gold, UnitType.Militia},
             {Resource.Ebony, UnitType.Cavalry},
@@ -166,7 +172,15 @@ namespace Homm.Client
             {Resource.Iron, UnitType.Infantry}
         };
 
-        private static readonly Dictionary<UnitType, UnitType> UnitCounters = new Dictionary<UnitType, UnitType>()
+        public static readonly Dictionary<UnitType, Resource> UnitToResource = new Dictionary<UnitType, Resource>()
+        {
+            {UnitType.Militia, Resource.Gold},
+            {UnitType.Cavalry, Resource.Ebony},
+            {UnitType.Ranged, Resource.Glass},
+            {UnitType.Infantry, Resource.Iron}
+        };
+
+        public static readonly Dictionary<UnitType, UnitType> UnitCounters = new Dictionary<UnitType, UnitType>()
         {
             {UnitType.Infantry, UnitType.Cavalry},
             {UnitType.Cavalry, UnitType.Ranged},

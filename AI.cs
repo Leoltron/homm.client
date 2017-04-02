@@ -54,7 +54,7 @@ namespace Homm.Client
                 select isAttackerProfit
                     ? defenderLoss * UnitsConstants.Current.Scores[type] -
                       attackerLoss * calculator.GetDegreeOfNeed(type)
-                    : //TODO: Сделать расчет войск -> ресурса (и насколько нам все же нужно ополчение?)
+                    :
                     attackerLoss * UnitsConstants.Current.Scores[type] -
                     defenderLoss * calculator.GetDegreeOfNeed(type)
             ).Sum();
