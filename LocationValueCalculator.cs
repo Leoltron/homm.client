@@ -89,7 +89,7 @@ namespace Homm.Client
         public HommCommand TakeDecision(Dictionary<Location, double> firstLevel)
         {
             var max = firstLevel
-                .OrderBy(pair => pair.Value)
+                .OrderByDescending(pair => pair.Value)
                 .Take(1)
                 .ToArray()[0];
             var ourLocation = new Location(ai.CurrentData.Location.Y, ai.CurrentData.Location.X);
