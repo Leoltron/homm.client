@@ -57,7 +57,13 @@ namespace Homm.Client
             weight += GetTerrainValue(mapObject.Terrain);
             var enemyArmy = GetEnemyArmy(mapObject);
             if (enemyArmy != null)
-                weight += ai.GetProfitFromAttack(enemyArmy);
+            {
+                var profit = ai.GetProfitFromAttack(enemyArmy);
+                if (profit <= 0)
+                    weight = profit;
+                else
+                    weight += profit;
+            }
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
         }
