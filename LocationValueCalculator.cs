@@ -13,6 +13,7 @@ namespace Homm.Client
     internal class LocationValueCalculator
     {
         private readonly AI ai;
+        private HashSet<Location> Visited;
 
         private readonly Direction[] directions =
         {
@@ -23,6 +24,7 @@ namespace Homm.Client
         public LocationValueCalculator(AI ai)
         {
             this.ai = ai;
+            Visited = new HashSet<Location>();
         }
 
         public static Dictionary<Location, MapObjectData>[] DivideByFar(int radius, HommSensorData data)
@@ -63,6 +65,9 @@ namespace Homm.Client
                 else
                     weight += profit;
             }
+            if (Visited.Contains(mapObject.Location.ToLocation()))
+                weight -= 5;
+            Visited.Add(mapObject.Location.ToLocation());
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
         }
@@ -87,7 +92,7 @@ namespace Homm.Client
             var neighbs = ourLocation.Neighborhood;
             return neighbs.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb]);
         }
-
+        
         private Location prevLocation = new Location(-1,-1);
         public HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
         {
@@ -103,12 +108,12 @@ namespace Homm.Client
                 {
                     var neighbor = ourLocation.NeighborAt(direction);
                     if (neighbor != max.Key || prevLocation.X == neighbor.X && prevLocation.Y == neighbor.Y) continue;
-                    prevLocation = neighbor;
+                    prevLocation = ourLocation;
                     return CommandGenerator.GetMoveCommand(direction);
                 }
             }
             var dir = GetFirstAvailableDirection();
-            prevLocation = ourLocation.NeighborAt(dir);
+            prevLocation = ourLocation;
             return CommandGenerator.GetMoveCommand(dir);
         }
 
