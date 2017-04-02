@@ -91,6 +91,7 @@ namespace Homm.Client
                                 keyValuePair.Value);
                     }
                 }
+                CurrentData = Client.Act(calculator.TakeDecision(godnota[1]));
             }
         }
 

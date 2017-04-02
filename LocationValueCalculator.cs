@@ -93,7 +93,7 @@ namespace Homm.Client
             return sum;
         }
 
-        private HommCommand TakeDecision(Dictionary<Tuple<int, int>, double> neighbours)
+        public HommCommand TakeDecision(Dictionary<Tuple<int, int>, double> neighbours)
         {
             var x = ai.CurrentData.Location.X;
             var y = ai.CurrentData.Location.Y;
