@@ -57,7 +57,7 @@ namespace Homm.Client
             var weight = 0.0;
             weight += GetPileValue(mapObject.ResourcePile);
             weight += GetMineValue(mapObject.Mine);
-            weight += GetDwellingValue(mapObject.Dwelling);
+            //weight += GetDwellingValue(mapObject.Dwelling);
             weight += GetTerrainValue(mapObject.Terrain);
             var enemyArmy = GetEnemyArmy(mapObject);
             if (enemyArmy != null)
@@ -70,9 +70,9 @@ namespace Homm.Client
         {
             if (cell.NeutralArmy != null)
                 return cell.NeutralArmy.Army;
-            if (cell.Hero.Army != null)
+            if (cell.Hero != null)
                 return cell.Hero.Army;
-            if (cell.Garrison.Army != null && cell.Garrison.Owner != "Видимо имя нашего героя")
+            if (cell.Garrison != null && cell.Garrison.Owner != "Видимо имя нашего героя")
                 return cell.Garrison.Army;
             return null;
         }
