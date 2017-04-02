@@ -14,23 +14,19 @@ namespace Homm.Client
     {
         private readonly AI ai;
 
-        public static readonly Dictionary<Tuple<int, int>, Direction> Compass = new Dictionary
-            <Tuple<int, int>, Direction>
-            {
-                {Tuple.Create(-1, -1), Direction.LeftDown},
-                {Tuple.Create(-1, 1), Direction.LeftUp},
-                {Tuple.Create(0, -1), Direction.Down},
-                {Tuple.Create(0, 1), Direction.Up},
-                {Tuple.Create(1, -1), Direction.RightDown},
-                {Tuple.Create(1, 1), Direction.RightUp}
-            };
+        private Direction[] ways =
+        {
+            Direction.Up, Direction.RightUp,
+            Direction.RightDown, Direction.Down,
+            Direction.LeftDown, Direction.LeftUp
+        };
 
         public LocationValueCalculator(AI ai)
         {
             this.ai = ai;
         }
 
-        public Dictionary<Tuple<int, int>, MapObjectData>[] DivideByFar(int radius, HommSensorData data)
+        public Dictionary<Location, MapObjectData>[] DivideByFar(int radius, HommSensorData data)
         {
             var levels = new Dictionary<int, List<MapObjectData>>();
             foreach (var mapObject in data.Map.Objects)
@@ -48,7 +44,7 @@ namespace Homm.Client
                 .OrderBy(record => record.Key)
                 .Select(record => record.Value)
                 .Select(collection =>
-                    collection.ToDictionary(point => Tuple.Create(point.Location.X, point.Location.Y)))
+                    collection.ToDictionary(point => new Location(point.Location.X, point.Location.Y)))
                 .ToArray();
         }
 
@@ -77,42 +73,26 @@ namespace Homm.Client
             return null;
         }
 
-        public double AddNeighboursWeight(Dictionary<Tuple<int, int>, double> previousLevel,
+        public double AddNeighboursWeight(Dictionary<Location, double> previousLevel,
             MapObjectData current)
         {
-            var sum = 0.0;
-            for (var i = -1; i <= 1; i++)
-            for (var j = -1; j <= 1; j++)
-            {
-                var x = current.Location.X + i;
-                var y = current.Location.Y + j;
-                var point = Tuple.Create(x, y);
-                if (i != 0 || j != 0 && previousLevel.ContainsKey(point))
-                    sum += previousLevel[point];
-            }
-            return sum;
+            var neighbs = new Location(current.Location.Y, current.Location.X).Neighborhood;
+            return neighbs.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb]);
         }
 
-        public HommCommand TakeDecision(Dictionary<Tuple<int, int>, double> neighbours)
+        public HommCommand TakeDecision(Dictionary<Location, double> firstLevel)
         {
-            var x = ai.CurrentData.Location.X;
-            var y = ai.CurrentData.Location.Y;
-            var bestDirection = new Tuple<int, int>(0, 0);
-            double max = -1;
-            for (var i = -1; i <= 1; i++)
-            for (var j = -1; j <= 1; j++)
+            var max = firstLevel
+                .OrderBy(pair => pair.Value)
+                .Take(1)
+                .ToArray()[0];
+            var ourLocation = new Location(ai.CurrentData.Location.Y, ai.CurrentData.Location.X);
+            foreach (var direction in ways)
             {
-                if (i != 0 || j != 0)
-                {
-                    var neighb = Tuple.Create(x + i, y + j);
-                    if (neighbours.ContainsKey(neighb) && neighbours[neighb] > max)
-                    {
-                        max = neighbours[neighb];
-                        bestDirection = Tuple.Create(i, j);
-                    }
-                }
+                if (ourLocation.NeighborAt(direction) == max.Key)
+                    return CommandGenerator.GetMoveCommand(direction);
             }
-            return CommandGenerator.GetMoveCommand(Compass[bestDirection]);
+            return CommandGenerator.GetMoveCommand(Direction.Down);
         }
 
         //TODO: Настроить коэффиценты

@@ -13,7 +13,7 @@ namespace Homm.Client
 
         public EnemyArmyData EnemyArmyData;
         public ResourcesData ResourcesData;
-        private const int radius = 0; //c этим еще определимся
+        private const int radius = 10; //c этим еще определимся
         private readonly LocationValueCalculator calculator;
 
 
@@ -77,12 +77,12 @@ namespace Homm.Client
             else
             {
                 var levels = calculator.DivideByFar(radius, CurrentData);
-                var godnota = new Dictionary<Tuple<int, int>, double>[levels.Length];
+                var godnota = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
                 {
                     var level = levels[i];
-                    godnota[i] = new Dictionary<Tuple<int, int>, double>();
+                    godnota[i] = new Dictionary<Location, double>();
                     foreach (var keyValuePair in level)
                     {
                         godnota[i].Add(keyValuePair.Key, calculator.GetWeight(keyValuePair.Value));
