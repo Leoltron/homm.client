@@ -24,11 +24,21 @@ namespace Homm.Client
             this.client.OnSensorDataReceived += OnDataUpdated;
             UpdateData();
             calculator = new LocationValueCalculator(this);
-
+            
             while (true)
             {
                 NextMove();
             }
+        }
+
+        private double GetProfitFromAttack(Dictionary<UnitType, int> enemyArmy)
+        {
+            return GetBattleProfit(new ArmiesPair(currentData.MyArmy,enemyArmy));
+        }
+
+        private double GetBattleProfit(ArmiesPair initialState, bool isAttackerProfit = true)
+        {
+            return GetBattleProfit(initialState, Combat.Resolve(initialState), isAttackerProfit);
         }
 
         private double GetBattleProfit(ArmiesPair initialState, Combat.CombatResult result, bool isAttackerProfit = true)
