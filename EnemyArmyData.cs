@@ -7,20 +7,20 @@ namespace Homm.Client
 {
     public struct EnemyArmyData
     {
-        private readonly Dictionary<UnitType, int> UnitAmount;
+        private readonly Dictionary<UnitType, int> unitAmount;
         private readonly int amountOverall;
 
         public double GetPart(UnitType type)
         {
-            if (!UnitAmount.ContainsKey(type) || amountOverall == 0)
+            if (!unitAmount.ContainsKey(type) || amountOverall == 0)
                 return 0;
-            return (double)UnitAmount[type] / amountOverall;
+            return (double)unitAmount[type] / amountOverall;
         }
 
         private EnemyArmyData(Dictionary<UnitType, int> unitAmount)
         {
-            UnitAmount = unitAmount;
-            amountOverall = UnitAmount.Sum(u => u.Value);
+            this.unitAmount = unitAmount;
+            amountOverall = this.unitAmount.Sum(u => u.Value);
         }
 
         public static EnemyArmyData Parse(HommSensorData data)

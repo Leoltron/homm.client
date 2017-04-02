@@ -9,7 +9,7 @@ namespace Homm.Client
     {
         public static HommCommand GetMoveCommand(Direction direction)
         {
-            return new HommCommand()
+            return new HommCommand
             {
                 Movement = new HexMovement(direction)
             };
