@@ -49,8 +49,8 @@ namespace Homm.Client
             var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
             return
             (from type in unitTypes
-                let attackerLoss = initialState.AttackingArmy[type] - result.AttackingArmy[type]
-                let defenderLoss = initialState.DefendingArmy[type] - result.DefendingArmy[type]
+                let attackerLoss = initialState.AttackingArmy.GetOrDefault(type) - result.AttackingArmy.GetOrDefault(type)
+                let defenderLoss = initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
                 select isAttackerProfit
                     ? defenderLoss * UnitsConstants.Current.Scores[type] -
                       attackerLoss * calculator.GetDegreeOfNeed(type)
