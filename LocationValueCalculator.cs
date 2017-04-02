@@ -16,8 +16,7 @@ namespace Homm.Client
 
         private Direction[] ways =
         {
-            Direction.Up, Direction.RightUp,
-            Direction.RightDown, Direction.Down,
+            Direction.Up, Direction.RightUp, Direction.RightDown, Direction.Down,
             Direction.LeftDown, Direction.LeftUp
         };
 
@@ -33,8 +32,8 @@ namespace Homm.Client
             {
                 var dx = mapObject.Location.X - data.Location.X;
                 var dy = mapObject.Location.Y - data.Location.Y;
-                var distance = dx * dx + dy * dy;
-                if (Math.Sqrt(distance) > radius)
+                var distance = (int)Math.Sqrt(dx * dx + dy * dy);
+                if (distance > radius)
                     continue;
                 if (!levels.ContainsKey(distance))
                     levels.Add(distance, new List<MapObjectData>());
@@ -44,7 +43,7 @@ namespace Homm.Client
                 .OrderBy(record => record.Key)
                 .Select(record => record.Value)
                 .Select(collection =>
-                    collection.ToDictionary(point => new Location(point.Location.X, point.Location.Y)))
+                    collection.ToDictionary(point => new Location(point.Location.Y, point.Location.X)))
                 .ToArray();
         }
 
@@ -53,7 +52,7 @@ namespace Homm.Client
             var weight = 0.0;
             weight += GetPileValue(mapObject.ResourcePile);
             weight += GetMineValue(mapObject.Mine);
-            //weight += GetDwellingValue(mapObject.Dwelling);
+            weight += GetDwellingValue(mapObject.Dwelling);
             weight += GetTerrainValue(mapObject.Terrain);
             var enemyArmy = GetEnemyArmy(mapObject);
             if (enemyArmy != null)
@@ -82,28 +81,37 @@ namespace Homm.Client
         public double AddNeighboursWeight(Dictionary<Location, double> previousLevel,
             MapObjectData current)
         {
-            var neighbs = new Location(current.Location.Y, current.Location.X).Neighborhood;
+            var ourLocation = new Location(current.Location.Y, current.Location.X);
+            if (Program.GetObjectAt(ai.CurrentData.Map, ourLocation) == "Wall")
+                return 0;
+            var neighbs = ourLocation.Neighborhood;
             return neighbs.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb]);
         }
 
         public HommCommand TakeDecision(Dictionary<Location, double> firstLevel)
         {
-            var max = firstLevel
+            var badWays = new HashSet<string>{"Wall", "Nothing", "Outside"};
+            var maxs = firstLevel
+                .Where(pair => !badWays.Contains(Program.GetObjectAt(ai.CurrentData.Map, pair.Key)))
                 .OrderByDescending(pair => pair.Value)
-                .Take(1)
-                .ToArray()[0];
+                .ToArray();
             var ourLocation = new Location(ai.CurrentData.Location.Y, ai.CurrentData.Location.X);
-            foreach (var direction in ways)
+            var t = ourLocation.Neighborhood;
+            foreach (var max in maxs)
             {
-                if (ourLocation.NeighborAt(direction) == max.Key)
-                    return CommandGenerator.GetMoveCommand(direction);
+                foreach (var direction in ways)
+                {
+                    var p = ourLocation.NeighborAt(direction);
+                    if (p == max.Key)
+                        return CommandGenerator.GetMoveCommand(direction);
+                }
             }
             return CommandGenerator.GetMoveCommand(Direction.Down);
         }
 
         //TODO: Настроить коэффиценты
-        private const double ResourceRarityCoefficent = 1;
-        private const double ArmyEfficencyCoefficent = 1;
+        private const double ResourceRarityCoefficent = 10;
+        private const double ArmyEfficencyCoefficent = 10;
 
         public double GetPileValue(ResourcePile pile)
         {
@@ -125,7 +133,7 @@ namespace Homm.Client
         }
 
         //TODO: Настроить коэффицент
-        private const double MineCoefficent = 1;
+        private const double MineCoefficent = 20;
 
         public double GetMineValue(Mine mine)
         {
@@ -137,7 +145,7 @@ namespace Homm.Client
 
         public double GetDwellingValue(Dwelling dwelling)
         {
-            throw new NotImplementedException();
+            return dwelling != null ? 10 : 0;
         }
 
         private double GetTerrainValue(Terrain terrain) => 1 / costOfMove[terrain];
