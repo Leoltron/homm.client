@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
+using Dwelling = HoMM.ClientClasses.Dwelling;
 
 namespace Homm.Client
 {
@@ -49,8 +50,10 @@ namespace Homm.Client
             var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
             return
             (from type in unitTypes
-                let attackerLoss = initialState.AttackingArmy.GetOrDefault(type) - result.AttackingArmy.GetOrDefault(type)
-                let defenderLoss = initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
+                let attackerLoss =
+                initialState.AttackingArmy.GetOrDefault(type) - result.AttackingArmy.GetOrDefault(type)
+                let defenderLoss =
+                initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
                 select isAttackerProfit
                     ? defenderLoss * UnitsConstants.Current.Scores[type] -
                       attackerLoss * calculator.GetDegreeOfNeed(type)
@@ -76,25 +79,69 @@ namespace Homm.Client
                 Client.Wait(HommRules.Current.RespawnInterval);
             else
             {
+                var howManyCanHireHere = HowManyICanHire(GetObjectAtMe().Dwelling);
+                if (howManyCanHireHere > 0)
+                    OnDataUpdated(Client.HireUnits(howManyCanHireHere));
                 var levels = calculator.DivideByFar(radius, CurrentData);
-                var godnota = new Dictionary<Location, double>[levels.Length];
+                var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
                 {
                     var level = levels[i];
-                    godnota[i] = new Dictionary<Location, double>();
+                    suitableLocations[i] = new Dictionary<Location, double>();
                     foreach (var keyValuePair in level)
                     {
-                        godnota[i].Add(keyValuePair.Key, calculator.GetWeight(keyValuePair.Value));
+                        suitableLocations[i].Add(keyValuePair.Key, calculator.GetWeight(keyValuePair.Value));
                         if (i != lastLevel)
-                            godnota[i][keyValuePair.Key] += calculator.AddNeighboursWeight(godnota[i + 1],
-                                keyValuePair.Value);
+                            suitableLocations[i][keyValuePair.Key] +=
+                                calculator.AddNeighboursWeight(suitableLocations[i + 1],
+                                    keyValuePair.Value);
                     }
                 }
-                CurrentData = Client.Act(calculator.TakeDecision(godnota[1]));
+                OnDataUpdated(Client.Act(calculator.TakeMovementDecision(suitableLocations[1])));
             }
         }
 
+        private MapObjectData GetObjectAtMe()
+        {
+            return GetObjectAt(CurrentData.Location.ToLocation());
+        }
+
+        private MapObjectData GetObjectAt(Location location)
+        {
+            if (location.X < 0 || location.X >= CurrentData.Map.Width || location.Y < 0 ||
+                location.Y >= CurrentData.Map.Height)
+                return null;
+            return CurrentData.Map.Objects.FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y);
+        }
+
+        public static bool CanStandThere(MapData map, Location location)
+        {
+            if (location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
+                return false;
+            var obj = map.Objects.FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y);
+            return obj != null && obj.Wall == null;
+        }
+
+        public int HowManyICanHire(Dwelling dwelling)
+        {
+            return HowManyCanHire(dwelling, CurrentData.MyTreasury);
+        }
+
+        public static int HowManyCanHire(Dwelling dwelling, Dictionary<Resource, int> resources)
+        {
+            if (dwelling == null)
+                return 0;
+            var hireCost = UnitsConstants.Current.UnitCost[dwelling.UnitType];
+            var canHireWithResource = (from resource in hireCost.Keys
+                where
+                hireCost[resource] > 0 &&
+                resources.ContainsKey(resource) &&
+                resources[resource] > 0
+                select resources[resource] / hireCost[resource]).ToList();
+            canHireWithResource.Add(dwelling.AvailableToBuyCount);
+            return canHireWithResource.Min();
+        }
 
         private void OnDataUpdated(HommSensorData data)
         {

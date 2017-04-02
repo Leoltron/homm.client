@@ -14,7 +14,7 @@ namespace Homm.Client
     {
         private readonly AI ai;
 
-        private Direction[] ways =
+        private readonly Direction[] directions =
         {
             Direction.Up, Direction.RightUp, Direction.RightDown, Direction.Down,
             Direction.LeftDown, Direction.LeftUp
@@ -73,7 +73,7 @@ namespace Homm.Client
                 return cell.NeutralArmy.Army;
             if (cell.Hero != null)
                 return cell.Hero.Army;
-            if (cell.Garrison != null && cell.Garrison.Owner != "Видимо имя нашего героя")
+            if (cell.Garrison != null && cell.Garrison.Owner != "Видимо имя нашего героя") //TODO: Так какое же?
                 return cell.Garrison.Army;
             return null;
         }
@@ -88,26 +88,36 @@ namespace Homm.Client
             return neighbs.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb]);
         }
 
-        public HommCommand TakeDecision(Dictionary<Location, double> firstLevel)
+        private Location prevLocation = new Location(-1,-1);
+        public HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
         {
             var badWays = new HashSet<string>{"Wall", "Nothing", "Outside"};
             var maxs = firstLevel
                 .Where(pair => !badWays.Contains(Program.GetObjectAt(ai.CurrentData.Map, pair.Key)))
                 .OrderByDescending(pair => pair.Value)
                 .ToArray();
-            var ourLocation = new Location(ai.CurrentData.Location.Y, ai.CurrentData.Location.X);
-            var t = ourLocation.Neighborhood;
+            var ourLocation = ai.CurrentData.Location.ToLocation();
             foreach (var max in maxs)
             {
-                foreach (var direction in ways)
+                foreach (var direction in directions)
                 {
-                    var p = ourLocation.NeighborAt(direction);
-                    if (p == max.Key)
-                        return CommandGenerator.GetMoveCommand(direction);
+                    var neighbor = ourLocation.NeighborAt(direction);
+                    if (neighbor != max.Key || prevLocation.X == neighbor.X && prevLocation.Y == neighbor.Y) continue;
+                    prevLocation = neighbor;
+                    return CommandGenerator.GetMoveCommand(direction);
                 }
             }
-            return CommandGenerator.GetMoveCommand(Direction.Down);
+            var dir = GetFirstAvailableDirection();
+            prevLocation = ourLocation.NeighborAt(dir);
+            return CommandGenerator.GetMoveCommand(dir);
         }
+
+        private Direction GetFirstAvailableDirection()
+        {
+            var curLocation = ai.CurrentData.Location.ToLocation();
+            return directions.FirstOrDefault(direction => AI.CanStandThere(ai.CurrentData.Map, curLocation.NeighborAt(direction)));
+        }
+
 
         //TODO: Настроить коэффиценты
         private const double ResourceRarityCoefficent = 10;
@@ -143,14 +153,14 @@ namespace Homm.Client
                    GetDegreeOfNeed(mine.Resource) * HommRules.Current.MineDailyResourceYield) * MineCoefficent;
         }
 
-        public double GetDwellingValue(Dwelling dwelling)
+        public static double GetDwellingValue(Dwelling dwelling)
         {
             return dwelling != null ? 10 : 0;
         }
 
-        private double GetTerrainValue(Terrain terrain) => 1 / costOfMove[terrain];
+        private static double GetTerrainValue(Terrain terrain) => 1 / CostOfMove[terrain];
 
-        private static readonly Dictionary<Terrain, double> costOfMove = new Dictionary<Terrain, double>
+        private static readonly Dictionary<Terrain, double> CostOfMove = new Dictionary<Terrain, double>
         {
             {Terrain.Desert, TileTerrain.Desert.TravelCost},
             {Terrain.Grass, TileTerrain.Grass.TravelCost},
@@ -159,7 +169,7 @@ namespace Homm.Client
             {Terrain.Snow, TileTerrain.Snow.TravelCost}
         };
 
-        public static readonly Dictionary<Resource, UnitType> ResourceToUnit = new Dictionary<Resource, UnitType>()
+        public static readonly Dictionary<Resource, UnitType> ResourceToUnit = new Dictionary<Resource, UnitType>
         {
             {Resource.Gold, UnitType.Militia},
             {Resource.Ebony, UnitType.Cavalry},
@@ -167,7 +177,7 @@ namespace Homm.Client
             {Resource.Iron, UnitType.Infantry}
         };
 
-        public static readonly Dictionary<UnitType, Resource> UnitToResource = new Dictionary<UnitType, Resource>()
+        public static readonly Dictionary<UnitType, Resource> UnitToResource = new Dictionary<UnitType, Resource>
         {
             {UnitType.Militia, Resource.Gold},
             {UnitType.Cavalry, Resource.Ebony},
@@ -175,7 +185,7 @@ namespace Homm.Client
             {UnitType.Infantry, Resource.Iron}
         };
 
-        public static readonly Dictionary<UnitType, UnitType> UnitCounters = new Dictionary<UnitType, UnitType>()
+        public static readonly Dictionary<UnitType, UnitType> UnitCounters = new Dictionary<UnitType, UnitType>
         {
             {UnitType.Infantry, UnitType.Cavalry},
             {UnitType.Cavalry, UnitType.Ranged},

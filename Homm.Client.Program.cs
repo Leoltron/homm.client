@@ -88,7 +88,7 @@ namespace Homm.Client
             Console.WriteLine(GetObjectAt(data.Map, location.NeighborAt(Direction.LeftUp)));
         }
 
-        static string GetObjectAt(MapData map, Location location)
+        public static string GetObjectAt(MapData map, Location location)
         {
             if (location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
                 return "Outside";
