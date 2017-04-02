@@ -25,7 +25,7 @@ namespace Homm.Client
             this.ai = ai;
         }
 
-        public Dictionary<Location, MapObjectData>[] DivideByFar(int radius, HommSensorData data)
+        public static Dictionary<Location, MapObjectData>[] DivideByFar(int radius, HommSensorData data)
         {
             var levels = new Dictionary<int, List<MapObjectData>>();
             foreach (var mapObject in data.Map.Objects)
@@ -67,7 +67,7 @@ namespace Homm.Client
             return weight;
         }
 
-        private Dictionary<UnitType, int> GetEnemyArmy(MapObjectData cell)
+        private static Dictionary<UnitType, int> GetEnemyArmy(MapObjectData cell)
         {
             if (cell.NeutralArmy != null)
                 return cell.NeutralArmy.Army;

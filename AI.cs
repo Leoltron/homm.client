@@ -82,7 +82,7 @@ namespace Homm.Client
                 var howManyCanHireHere = HowManyICanHire(GetObjectAtMe().Dwelling);
                 if (howManyCanHireHere > 0)
                     OnDataUpdated(Client.HireUnits(howManyCanHireHere));
-                var levels = calculator.DivideByFar(radius, CurrentData);
+                var levels = LocationValueCalculator.DivideByFar(radius, CurrentData);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
