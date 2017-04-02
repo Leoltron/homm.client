@@ -36,6 +36,8 @@ namespace Homm.Client
                 var dx = mapObject.Location.X - data.Location.X;
                 var dy = mapObject.Location.Y - data.Location.Y;
                 var distance = dx * dx + dy * dy;
+                if (Math.Sqrt(distance) > radius)
+                    continue;
                 if (!levels.ContainsKey(distance))
                     levels.Add(distance, new List<MapObjectData>());
                 levels[distance].Add(mapObject);
@@ -54,8 +56,23 @@ namespace Homm.Client
             weight += GetPileValue(mapObject.ResourcePile);
             weight += GetMineValue(mapObject.Mine);
             weight += GetDwellingValue(mapObject.Dwelling);
+            weight += GetTerrainValue(mapObject.Terrain);
+            var enemyArmy = GetEnemyArmy(mapObject);
+            if (enemyArmy != null)
+                weight += ai.GetProfitFromAttack(enemyArmy);
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
+        }
+
+        private Dictionary<UnitType, int> GetEnemyArmy(MapObjectData cell)
+        {
+            if (cell.NeutralArmy != null)
+                return cell.NeutralArmy.Army;
+            if (cell.Hero.Army != null)
+                return cell.Hero.Army;
+            if (cell.Garrison.Army != null && cell.Garrison.Owner != "Видимо имя нашего героя")
+                return cell.Garrison.Army;
+            return null;
         }
 
         public double AddNeighboursWeight(Dictionary<Tuple<int, int>, double> previousLevel,
@@ -129,6 +146,17 @@ namespace Homm.Client
         {
             throw new NotImplementedException();
         }
+
+        private double GetTerrainValue(Terrain terrain) => 1 / costOfMove[terrain];
+
+        private static readonly Dictionary<Terrain, double> costOfMove = new Dictionary<Terrain, double>
+        {
+            {Terrain.Desert, TileTerrain.Desert.TravelCost},
+            {Terrain.Grass, TileTerrain.Grass.TravelCost},
+            {Terrain.Marsh, TileTerrain.Marsh.TravelCost},
+            {Terrain.Road, TileTerrain.Road.TravelCost},
+            {Terrain.Snow, TileTerrain.Snow.TravelCost}
+        };
 
         private static readonly Dictionary<Resource, UnitType> UnitRelation = new Dictionary<Resource, UnitType>()
         {

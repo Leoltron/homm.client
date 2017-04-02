@@ -31,7 +31,7 @@ namespace Homm.Client
             }
         }
 
-        private double GetProfitFromAttack(Dictionary<UnitType, int> enemyArmy)
+        public double GetProfitFromAttack(Dictionary<UnitType, int> enemyArmy)
         {
             return GetBattleProfit(new ArmiesPair(currentData.MyArmy,enemyArmy));
         }
