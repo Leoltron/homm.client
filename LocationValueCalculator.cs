@@ -10,7 +10,7 @@ using ResourcePile = HoMM.ClientClasses.ResourcePile;
 
 namespace Homm.Client
 {
-    internal class LocationValueCalculator
+    public class LocationValueCalculator
     {
         private readonly AI ai;
 
@@ -57,7 +57,7 @@ namespace Homm.Client
             var enemyArmy = GetEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
-                var profit = ai.GetProfitFromAttack(enemyArmy);
+                var profit = ai.battleCalc.GetProfitFromAttack(enemyArmy);
                 if (profit <= 0)
                     weight = profit;
                 else
