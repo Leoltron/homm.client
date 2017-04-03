@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
@@ -17,6 +16,7 @@ namespace Homm.Client
         private const int radius = 10; //c этим еще определимся
         public readonly LocationValueCalculator LocCalc;
         public readonly BattleCalculator BattleCalc;
+        private readonly HireHelper hireHelper;
 
         public AI(HommClient client, HommSensorData initialData)
         {
@@ -26,7 +26,7 @@ namespace Homm.Client
             UpdateData();
             LocCalc = new LocationValueCalculator(this);
             BattleCalc = new BattleCalculator(this);
-
+            hireHelper = new HireHelper(this);
             while (true)
             {
                 NextMove();
@@ -45,7 +45,7 @@ namespace Homm.Client
                 client.Wait(HommRules.Current.RespawnInterval);
             else
             {
-                var howManyCanHireHere = HowManyICanHire(GetObjectAtMe().Dwelling);
+                var howManyCanHireHere = hireHelper.HowManyICanHire(GetObjectAtMe().Dwelling);
                 if (howManyCanHireHere > 0)
                     OnDataUpdated(client.HireUnits(howManyCanHireHere));
                 var levels = LocationValueCalculator.GroupByRange(radius, CurrentData);
@@ -87,26 +87,6 @@ namespace Homm.Client
                 return false;
             var obj = map.Objects.FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y);
             return obj != null && obj.Wall == null;
-        }
-
-        public int HowManyICanHire(Dwelling dwelling)
-        {
-            return HowManyCanHire(dwelling, CurrentData.MyTreasury);
-        }
-
-        public static int HowManyCanHire(Dwelling dwelling, Dictionary<Resource, int> resources)
-        {
-            if (dwelling == null)
-                return 0;
-            var hireCost = UnitsConstants.Current.UnitCost[dwelling.UnitType];
-            var canHireWithResource = (from resource in hireCost.Keys
-                where
-                hireCost[resource] > 0 &&
-                resources.ContainsKey(resource) &&
-                resources[resource] > 0
-                select resources[resource] / hireCost[resource]).ToList();
-            canHireWithResource.Add(dwelling.AvailableToBuyCount);
-            return canHireWithResource.Min();
         }
 
         private void OnDataUpdated(HommSensorData data)
