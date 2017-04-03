@@ -25,7 +25,7 @@ namespace Homm.Client
             this.ai = ai;
         }
 
-        public static Dictionary<Location, MapObjectData>[] DivideByFar(int radius, HommSensorData data)
+        public static Dictionary<Location, MapObjectData>[] GroupByRange(int radius, HommSensorData data)
         {
             var levels = new Dictionary<int, List<MapObjectData>>();
             foreach (var mapObject in data.Map.Objects)
@@ -47,7 +47,7 @@ namespace Homm.Client
                 .ToArray();
         }
 
-        public double GetWeight(MapObjectData mapObject)
+        public double GetMapObjectWeight(MapObjectData mapObject)
         {
             var weight = 0.0;
             weight += GetPileValue(mapObject.ResourcePile);
@@ -57,7 +57,7 @@ namespace Homm.Client
             var enemyArmy = GetEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
-                var profit = ai.battleCalc.GetProfitFromAttack(enemyArmy);
+                var profit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
                 if (profit <= 0)
                     weight = profit;
                 else
@@ -71,7 +71,7 @@ namespace Homm.Client
         {
             if (cell.NeutralArmy != null)
                 return cell.NeutralArmy.Army;
-            if (cell.Hero != null)
+            if (cell.Hero != null && cell.Hero.Name != "HeroName")
                 return cell.Hero.Army;
             if (cell.Garrison != null && cell.Garrison.Owner != "Видимо имя нашего героя") //TODO: Так какое же?
                 return cell.Garrison.Army;

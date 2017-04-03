@@ -44,9 +44,9 @@ namespace Homm.Client
              initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
              select isAttackerProfit
                  ? defenderLoss * UnitsConstants.Current.Scores[type] -
-                   attackerLoss * ai.locCalc.GetDegreeOfNeed(type)
+                   attackerLoss * ai.LocCalc.GetDegreeOfNeed(type)
                  : attackerLoss * UnitsConstants.Current.Scores[type] -
-                   defenderLoss * ai.locCalc.GetDegreeOfNeed(type)
+                   defenderLoss * ai.LocCalc.GetDegreeOfNeed(type)
             ).Sum();
         }
     }

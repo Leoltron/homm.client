@@ -9,23 +9,23 @@ namespace Homm.Client
 {
     public class AI
     {
-        public readonly HommClient Client;
+        private readonly HommClient client;
         public HommSensorData CurrentData;
 
         public EnemyArmyData EnemyArmyData;
         public ResourcesData ResourcesData;
         private const int radius = 10; //c этим еще определимся
-        public readonly LocationValueCalculator locCalc;
-        public readonly BattleCalculator battleCalc;
+        public readonly LocationValueCalculator LocCalc;
+        public readonly BattleCalculator BattleCalc;
 
         public AI(HommClient client, HommSensorData initialData)
         {
-            Client = client;
+            this.client = client;
             CurrentData = initialData;
-            Client.OnSensorDataReceived += OnDataUpdated;
+            this.client.OnSensorDataReceived += OnDataUpdated;
             UpdateData();
-            locCalc = new LocationValueCalculator(this);
-            battleCalc = new BattleCalculator(this);
+            LocCalc = new LocationValueCalculator(this);
+            BattleCalc = new BattleCalculator(this);
 
             while (true)
             {
@@ -42,13 +42,13 @@ namespace Homm.Client
         private void NextMove()
         {
             if (CurrentData.IsDead)
-                Client.Wait(HommRules.Current.RespawnInterval);
+                client.Wait(HommRules.Current.RespawnInterval);
             else
             {
                 var howManyCanHireHere = HowManyICanHire(GetObjectAtMe().Dwelling);
                 if (howManyCanHireHere > 0)
-                    OnDataUpdated(Client.HireUnits(howManyCanHireHere));
-                var levels = LocationValueCalculator.DivideByFar(radius, CurrentData);
+                    OnDataUpdated(client.HireUnits(howManyCanHireHere));
+                var levels = LocationValueCalculator.GroupByRange(radius, CurrentData);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
@@ -57,14 +57,14 @@ namespace Homm.Client
                     suitableLocations[i] = new Dictionary<Location, double>();
                     foreach (var keyValuePair in level)
                     {
-                        suitableLocations[i].Add(keyValuePair.Key, locCalc.GetWeight(keyValuePair.Value));
+                        suitableLocations[i].Add(keyValuePair.Key, LocCalc.GetMapObjectWeight(keyValuePair.Value));
                         if (i != lastLevel)
                             suitableLocations[i][keyValuePair.Key] +=
-                                locCalc.AddNeighboursWeight(suitableLocations[i + 1],
+                                LocCalc.AddNeighboursWeight(suitableLocations[i + 1],
                                     keyValuePair.Value);
                     }
                 }
-                OnDataUpdated(Client.Act(locCalc.TakeMovementDecision(suitableLocations[1])));
+                OnDataUpdated(client.Act(LocCalc.TakeMovementDecision(suitableLocations[1])));
             }
         }
 
