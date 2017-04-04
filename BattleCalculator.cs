@@ -32,8 +32,11 @@ namespace Homm.Client
 
         private double GetBattleProfit(ArmiesPair initialState, Combat.CombatResult result, bool isAttackerProfit = true)
         {
-            if (isAttackerProfit && result.IsAttackerWin || !isAttackerProfit && result.IsDefenderWin)
+            //if (isAttackerProfit && result.IsAttackerWin || !isAttackerProfit && result.IsDefenderWin)
+            //    return 0;
+            if (!result.IsAttackerWin)
                 return 0;
+            return 1;
 
             var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
             return
@@ -44,9 +47,9 @@ namespace Homm.Client
              initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
              select isAttackerProfit
                  ? defenderLoss * UnitsConstants.Current.Scores[type] -
-                   attackerLoss * ai.LocCalc.GetDegreeOfNeed(type)
+                   attackerLoss * CoefficientsCalculator.GetDegreeOfNeed(type, ai)
                  : attackerLoss * UnitsConstants.Current.Scores[type] -
-                   defenderLoss * ai.LocCalc.GetDegreeOfNeed(type)
+                   defenderLoss * CoefficientsCalculator.GetDegreeOfNeed(type, ai)
             ).Sum();
         }
     }

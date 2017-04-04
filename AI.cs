@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
@@ -13,8 +14,7 @@ namespace Homm.Client
 
         public EnemyArmyData EnemyArmyData;
         public ResourcesData ResourcesData;
-        private const int radius = 10; //c этим еще определимся
-        public readonly LocationValueCalculator LocCalc;
+        private readonly LocationValueCalculator LocCalc;
         public readonly BattleCalculator BattleCalc;
         private readonly HireHelper hireHelper;
 
@@ -45,10 +45,8 @@ namespace Homm.Client
                 client.Wait(HommRules.Current.RespawnInterval);
             else
             {
-                var howManyCanHireHere = hireHelper.HowManyICanHire(GetObjectAtMe().Dwelling);
-                if (howManyCanHireHere > 0)
-                    OnDataUpdated(client.HireUnits(howManyCanHireHere));
-                var levels = LocationValueCalculator.GroupByRange(radius, CurrentData);
+                TryHire();
+                var levels = NeighbsHelper.GroupByRange(CurrentData);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
@@ -57,15 +55,27 @@ namespace Homm.Client
                     suitableLocations[i] = new Dictionary<Location, double>();
                     foreach (var keyValuePair in level)
                     {
-                        suitableLocations[i].Add(keyValuePair.Key, LocCalc.GetMapObjectWeight(keyValuePair.Value));
+                        suitableLocations[i].Add(
+                            keyValuePair.Key, 
+                            LocCalc.GetMapObjectWeight(keyValuePair.Value));
                         if (i != lastLevel)
                             suitableLocations[i][keyValuePair.Key] +=
-                                LocCalc.AddNeighboursWeight(suitableLocations[i + 1],
-                                    keyValuePair.Value);
+                                NeighbsHelper.AddNeighboursWeight(
+                                    suitableLocations[i + 1],
+                                    keyValuePair.Value,
+                                    this);
                     }
                 }
+                //debug(suitableLocations); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(LocCalc.TakeMovementDecision(suitableLocations[1])));
             }
+        }
+
+        private void TryHire()
+        {
+            var howManyCanHireHere = hireHelper.HowManyICanHire(GetObjectAtMe().Dwelling);
+            if (howManyCanHireHere > 0)
+                OnDataUpdated(client.HireUnits(howManyCanHireHere));
         }
 
         private MapObjectData GetObjectAtMe()
@@ -93,6 +103,31 @@ namespace Homm.Client
         {
             CurrentData = data; // Не совсем уверен, что тут еще что-то может быть, ну да ладно
             UpdateData();
+        }
+
+
+        //вот тут их смотрю
+        void debug(Dictionary<Location, double>[] weights)
+        {
+            int width = CurrentData.Map.Width;
+            int height = CurrentData.Map.Height;
+            var w = weights
+                .Skip(1)
+                .SelectMany(pair => pair)
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            Location loc;
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    loc = new Location(i, j);
+                    if (w.ContainsKey(loc))
+                        Console.Write(String.Format(" {0:000.00}", w[loc]));
+                    else
+                        Console.Write("   0   ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }
