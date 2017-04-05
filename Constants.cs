@@ -48,14 +48,6 @@ namespace Homm.Client
             {Terrain.Snow, TileTerrain.Snow.TravelCost}
         };
 
-        public static readonly Direction[] Directions =
-        {
-            Direction.Up,
-            Direction.RightUp,
-            Direction.RightDown,
-            Direction.Down,
-            Direction.LeftDown,
-            Direction.LeftUp
-        };
+        public static readonly Direction[] Directions = Enum.GetValues(typeof(Direction)).Cast<Direction>().ToArray();
     }
 }

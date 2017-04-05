@@ -88,17 +88,16 @@ namespace Homm.Client
             Console.WriteLine(GetObjectAt(data.Map, location.NeighborAt(Direction.LeftUp)));
         }
 
-        public static string GetObjectAt(MapData map, Location location)
+        private static string GetObjectAt(MapData map, Location location)
         {
             if (location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
                 return "Outside";
-            return map.Objects.
-                Where(x => x.Location.X == location.X && x.Location.Y == location.Y)
-                .FirstOrDefault()?.ToString() ?? "Nothing";
+            return map.Objects
+                .FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y)?.ToString() ?? "Nothing";
         }
 
 
-        static void OnInfo(string infoMessage)
+        private static void OnInfo(string infoMessage)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(infoMessage);

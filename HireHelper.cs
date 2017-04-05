@@ -6,21 +6,9 @@ using Dwelling = HoMM.ClientClasses.Dwelling;
 
 namespace Homm.Client
 {
-    public class HireHelper
+    public static class HireHelper
     {
-        private readonly AI ai;
-
-        public HireHelper(AI ai)
-        {
-            this.ai = ai;
-        }
-
-        public int HowManyICanHire(Dwelling dwelling)
-        {
-            return HowManyCanHire(dwelling, ai.CurrentData.MyTreasury);
-        }
-
-        public static int HowManyCanHire(Dwelling dwelling, Dictionary<Resource, int> resources)
+        public static int HowManyCanHire(Dwelling dwelling, Dictionary<Resource, int> resourcesAvailable)
         {
             if (dwelling == null)
                 return 0;
@@ -28,9 +16,9 @@ namespace Homm.Client
             var canHireWithResource = (from resource in hireCost.Keys
                 where
                 hireCost[resource] > 0 &&
-                resources.ContainsKey(resource) &&
-                resources[resource] > 0
-                select resources[resource] / hireCost[resource]).ToList();
+                resourcesAvailable.ContainsKey(resource) &&
+                resourcesAvailable[resource] > 0
+                select resourcesAvailable[resource] / hireCost[resource]).ToList();
             canHireWithResource.Add(dwelling.AvailableToBuyCount);
             return canHireWithResource.Min();
         }

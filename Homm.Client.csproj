@@ -62,7 +62,7 @@
     <Compile Include="DictExtensions.cs" />
     <Compile Include="EnemyArmyData.cs" />
     <Compile Include="Homm.Client.Program.cs" />
-    <Compile Include="NeighbsHelper.cs" />
+    <Compile Include="NeighboursHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourcesData.cs" />
   </ItemGroup>

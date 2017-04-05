@@ -29,9 +29,9 @@ namespace Homm.Client
             foreach (var mapObject in data.Map.Objects)
             {
                 //Не учитываю гарнизоны врага и врага, ибо хз как отличать от своих
-                if (mapObject.NeutralArmy != null)
-                    foreach (var army in mapObject.NeutralArmy.Army)
-                        enemyUnitsData.AddOrSum(army);
+                if (mapObject.NeutralArmy == null) continue;
+                foreach (var army in mapObject.NeutralArmy.Army)
+                    enemyUnitsData.AddOrSum(army);
             }
             return new EnemyArmyData(enemyUnitsData);
         }

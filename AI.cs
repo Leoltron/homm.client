@@ -14,20 +14,18 @@ namespace Homm.Client
 
         public EnemyArmyData EnemyArmyData;
         public ResourcesData ResourcesData;
-        private readonly LocationValueCalculator LocCalc;
+        private readonly LocationValueCalculator locCalc;
         public readonly BattleCalculator BattleCalc;
-        private readonly HireHelper hireHelper;
 
-        public AI(HommClient client, HommSensorData initialData)
+        public AI(HommClient client, HommSensorData initialData, bool debugMode = false)
         {
             this.client = client;
             CurrentData = initialData;
             this.client.OnSensorDataReceived += OnDataUpdated;
             UpdateData();
-            LocCalc = new LocationValueCalculator(this);
+            locCalc = new LocationValueCalculator(this);
             BattleCalc = new BattleCalculator(this);
-            hireHelper = new HireHelper(this);
-            while (true)
+            while (!debugMode)
             {
                 NextMove();
             }
@@ -46,7 +44,7 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var levels = NeighbsHelper.GroupByRange(CurrentData);
+                var levels = NeighboursHelper.GroupByRange(CurrentData);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
@@ -55,25 +53,26 @@ namespace Homm.Client
                     suitableLocations[i] = new Dictionary<Location, double>();
                     foreach (var keyValuePair in level)
                     {
-                        suitableLocations[i].Add(
-                            keyValuePair.Key, 
-                            LocCalc.GetMapObjectWeight(keyValuePair.Value));
-                        if (i != lastLevel)
-                            suitableLocations[i][keyValuePair.Key] +=
-                                NeighbsHelper.AddNeighboursWeight(
-                                    suitableLocations[i + 1],
-                                    keyValuePair.Value,
-                                    this);
+                        suitableLocations[i]
+                            .Add(
+                                keyValuePair.Key,
+                                locCalc.GetMapObjectWeight(keyValuePair.Value));
+                        if (i == lastLevel) continue;
+                        var current = keyValuePair.Value;
+                        suitableLocations[i][keyValuePair.Key] +=
+                            NeighboursHelper.AddNeighboursWeight(
+                                suitableLocations[i + 1],
+                                CurrentData.Map, current.Location.ToLocation());
                     }
                 }
                 //debug(suitableLocations); //смотрю коэффициенты на поле
-                OnDataUpdated(client.Act(LocCalc.TakeMovementDecision(suitableLocations[1])));
+                OnDataUpdated(client.Act(locCalc.TakeMovementDecision(suitableLocations[1])));
             }
         }
 
         private void TryHire()
         {
-            var howManyCanHireHere = hireHelper.HowManyICanHire(GetObjectAtMe().Dwelling);
+            var howManyCanHireHere = HireHelper.HowManyCanHire(GetObjectAtMe().Dwelling, CurrentData.MyTreasury);
             if (howManyCanHireHere > 0)
                 OnDataUpdated(client.HireUnits(howManyCanHireHere));
         }
@@ -88,7 +87,8 @@ namespace Homm.Client
             if (location.X < 0 || location.X >= CurrentData.Map.Width || location.Y < 0 ||
                 location.Y >= CurrentData.Map.Height)
                 return null;
-            return CurrentData.Map.Objects.FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y);
+            return CurrentData.Map.Objects.FirstOrDefault(
+                x => x.Location.X == location.X && x.Location.Y == location.Y);
         }
 
         public static bool CanStandThere(MapData map, Location location)
@@ -101,30 +101,26 @@ namespace Homm.Client
 
         private void OnDataUpdated(HommSensorData data)
         {
-            CurrentData = data; // Не совсем уверен, что тут еще что-то может быть, ну да ладно
+            CurrentData = data;
             UpdateData();
         }
 
 
         //вот тут их смотрю
-        void debug(Dictionary<Location, double>[] weights)
+        private void Debug(IEnumerable<Dictionary<Location, double>> weights)
         {
-            int width = CurrentData.Map.Width;
-            int height = CurrentData.Map.Height;
+            var width = CurrentData.Map.Width;
+            var height = CurrentData.Map.Height;
             var w = weights
                 .Skip(1)
                 .SelectMany(pair => pair)
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
-            Location loc;
-            for (int i = 0; i < height; i++)
+            for (var i = 0; i < height; i++)
             {
-                for (int j = 0; j < width; j++)
+                for (var j = 0; j < width; j++)
                 {
-                    loc = new Location(i, j);
-                    if (w.ContainsKey(loc))
-                        Console.Write(String.Format(" {0:000.00}", w[loc]));
-                    else
-                        Console.Write("   0   ");
+                    var loc = new Location(i, j);
+                    Console.Write(w.ContainsKey(loc) ? $" {w[loc]:000.00}" : "   0   ");
                 }
                 Console.WriteLine();
             }

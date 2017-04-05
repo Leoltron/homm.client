@@ -2,7 +2,7 @@
 
 namespace Homm.Client
 {
-    static class DictExtensions
+    internal static class DictExtensions
     {
         public static void AddOrSum<T>(this IDictionary<T, int> dict, T key, int value)
         {

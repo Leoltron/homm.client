@@ -18,22 +18,22 @@ namespace Homm.Client
 
         public double GetMapObjectWeight(MapObjectData mapObject)
         {
-            var weight = 0.0;
+            var weight = 0d;
             weight += CoefficientsCalculator.GetPileValue(mapObject.ResourcePile, ai);
             weight += CoefficientsCalculator.GetMineValue(mapObject.Mine, ai);
             weight += CoefficientsCalculator.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
             weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
-            var enemyArmy = GetEnemyArmy(mapObject);
+            var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
-                var profit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
-                weight = profit <= 0 ? -2 : weight + profit;
+                var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
+                weight = battleProfit <= 0 ? -2 : weight + battleProfit;
             }
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
         }
 
-        private Dictionary<UnitType, int> GetEnemyArmy(MapObjectData cell)
+        private Dictionary<UnitType, int> FindEnemyArmy(MapObjectData cell)
         {
             if (cell.NeutralArmy != null)
                 return cell.NeutralArmy.Army;
