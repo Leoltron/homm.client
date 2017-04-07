@@ -10,8 +10,6 @@ namespace Homm.Client
         private readonly Dictionary<Resource, int> resources;
         private readonly int total;
 
-        private int this[Resource key] => resources[key];
-
         private ResourcesData(Dictionary<Resource, int> resources)
         {
             this.resources = resources;
@@ -20,9 +18,9 @@ namespace Homm.Client
 
         public double GetRarity(Resource type)
         {
-            if (!resources.ContainsKey(type) || this[type] == 0)
+            if (!resources.ContainsKey(type) || resources[type] == 0)
                 return double.MaxValue;
-            return (double) total / this[type];
+            return (double) total / resources[type];
         }
 
         private const double MineCoefficent = 1; //TODO: Настроить коэффицент

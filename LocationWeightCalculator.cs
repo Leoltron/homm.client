@@ -23,11 +23,10 @@ namespace Homm.Client
             weight += CoefficientsCalculator.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
             weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
             var enemyArmy = FindEnemyArmy(mapObject);
-            if (enemyArmy != null)
-            {
-                var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
-                weight = battleProfit <= 0 ? -2 : weight + battleProfit;
-            }
+            if (enemyArmy == null) return weight;
+
+            var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
+            weight = battleProfit <= 0 ? -2 : weight + battleProfit;
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
         }
