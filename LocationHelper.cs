@@ -36,5 +36,10 @@ namespace Homm.Client
             return Constants.Directions.FirstOrDefault(
                 direction => CanStandThere(ai.CurrentData.Map, curLocation.NeighborAt(direction)));
         }
+
+        public bool IsInsideMap(Location location, MapData map)
+        {
+            return location.X >= 0 && location.Y >= 0 && location.X < map.Width && location.Y < map.Height;
+        }
     }
 }

@@ -6,38 +6,54 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    public static class NeighboursHelper
+    public class NeighboursHelper
     {
-        public static double AddNeighboursWeight(
-            Dictionary<Location, double> previousLevel,
-            MapData map, Location currentLoc)
+        private LocationHelper locHelper;
+
+        public NeighboursHelper(LocationHelper locHelper)
         {
-            return LocationHelper.CanStandThere(map, currentLoc) ?
-                currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 2) :
-                0;
+            this.locHelper = locHelper;
         }
 
-        public static Dictionary<Location, MapObjectData>[] GroupByRange(HommSensorData data)
+        public static double AddNeighboursWeight(
+            Dictionary<Location, double> previousLevel,
+            MapData map, 
+            Location currentLoc)
         {
-            var levels = new Dictionary<int, List<MapObjectData>>();
-            foreach (var mapObject in data.Map.Objects)
+            return LocationHelper.CanStandThere(map, currentLoc) 
+                ? currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 1.5) 
+                : 0;
+        }
+
+        public List<MapObjectData>[] GroupByRange(HommSensorData data)
+        {
+            var levels =  new List<List<MapObjectData>>();
+            var visited = new HashSet<Location>();
+            var looked = new HashSet<Location>();
+            var queue = new Queue<Tuple<Location, int>>();
+            var start = data.Location.ToLocation();
+            queue.Enqueue(Tuple.Create(start, 0));
+            levels.Add(new List<MapObjectData>());
+            levels[0].Add(locHelper.GetObjectAt(start));
+            looked.Add(start);
+            while (queue.Any())
             {
-                var dx = mapObject.Location.X - data.Location.X;
-                var dy = mapObject.Location.Y - data.Location.Y;
-                var distance = (int)Math.Sqrt(dx * dx + dy * dy);
-                //Посмотри, нельзя ли использовать вместо этого EuclideanDistance(), а то там не совсем тривиальная формула какая-то
-                if (distance > Constants.Radius)
-                    continue;
-                if (!levels.ContainsKey(distance))
-                    levels.Add(distance, new List<MapObjectData>());
-                levels[distance].Add(mapObject);
+                var current = queue.Peek().Item1;
+                var deep = queue.Dequeue().Item2;
+                if (levels.Count == deep + 1)
+                    levels.Add(new List<MapObjectData>());
+                if (visited.Contains(current)) continue;
+                visited.Add(current);
+                var neighbs = current.Neighborhood;
+                foreach (var neighb in neighbs)
+                    if (locHelper.IsInsideMap(neighb, data.Map) && !looked.Contains(neighb))
+                    {
+                        looked.Add(neighb);
+                        levels[deep + 1].Add(locHelper.GetObjectAt(neighb));
+                        queue.Enqueue(Tuple.Create(neighb, deep + 1));
+                    }
             }
-            return levels
-                .OrderBy(record => record.Key)
-                .Select(record => record.Value)
-                .Select(collection =>
-                    collection.ToDictionary(point => point.Location.ToLocation()))
-                .ToArray();
+            return levels.ToArray();
         }
     }
 }

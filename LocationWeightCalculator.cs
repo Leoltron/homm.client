@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HoMM;
 using HoMM.ClientClasses;
 
@@ -15,7 +16,30 @@ namespace Homm.Client
             coefsCalc = new CoefficientsCalculator(ai);
         }
 
-        public double GetMapObjectWeight(MapObjectData mapObject)
+        public void CalculateLevelWeights(
+            Dictionary<Location, double>[] suitableLocations,
+            List<MapObjectData>[] levels,
+            int stage,
+            int lastStage)
+        {
+            var level = levels[stage];
+            suitableLocations[stage] = new Dictionary<Location, double>();
+            foreach (var mapObject in level)
+            {
+                var location = mapObject.Location.ToLocation();
+                suitableLocations[stage].Add(
+                                            location,
+                                            GetMapObjectWeight(mapObject));
+                if (stage == lastStage) continue;
+                var current = mapObject;
+                suitableLocations[stage][location] += NeighboursHelper.AddNeighboursWeight(
+                                                            suitableLocations[stage + 1],
+                                                            ai.CurrentData.Map, 
+                                                            current.Location.ToLocation());
+            }
+        }
+        
+        private double GetMapObjectWeight(MapObjectData mapObject)
         {
             var weight = 0d;
             weight += coefsCalc.GetPileValue(mapObject.ResourcePile);
