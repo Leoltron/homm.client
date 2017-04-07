@@ -32,7 +32,8 @@ namespace Homm.Client
                                             GetMapObjectWeight(mapObject));
                 if (stage == lastStage) continue;
                 var current = mapObject;
-                suitableLocations[stage][location] += NeighboursHelper.AddNeighboursWeight(
+                if (suitableLocations[stage][location] >= 0)
+                    suitableLocations[stage][location] += NeighboursHelper.AddNeighboursWeight(
                                                             suitableLocations[stage + 1],
                                                             ai.CurrentData.Map, 
                                                             current.Location.ToLocation());
@@ -50,7 +51,7 @@ namespace Homm.Client
             if (enemyArmy != null)
             {
                 var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
-                weight = battleProfit <= 0 ? -2 : weight + battleProfit;
+                weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
             }
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
