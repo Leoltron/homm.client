@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HoMM;
 using HoMM.ClientClasses;
 
@@ -15,18 +16,46 @@ namespace Homm.Client
             coefsCalc = new CoefficientsCalculator(ai);
         }
 
-        public double GetMapObjectWeight(MapObjectData mapObject)
+        public void CalculateLevelWeights(
+            Dictionary<Location, double>[] suitableLocations,
+            List<MapObjectData>[] levels,
+            int stage,
+            int lastStage)
+        {
+            var level = levels[stage];
+            suitableLocations[stage] = GetBaseLevelCoefficients(level);
+            if (stage != lastStage)
+                NeighboursHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
+            suitableLocations[stage] = NeighboursHelper.SpreadSmellAlongLevel(suitableLocations[stage], ai.CurrentData.Map);
+
+        }
+
+        private Dictionary<Location, double> GetBaseLevelCoefficients(List<MapObjectData> level)
+        {
+            var suitableLocations = new Dictionary<Location, double>();
+            foreach (var mapObject in level)
+            {
+                var location = mapObject.Location.ToLocation();
+                suitableLocations.Add(
+                        location,
+                        GetMapObjectWeight(mapObject));
+            }
+            return suitableLocations;
+        }
+        
+        private double GetMapObjectWeight(MapObjectData mapObject)
         {
             var weight = 0d;
             weight += coefsCalc.GetPileValue(mapObject.ResourcePile);
             weight += coefsCalc.GetMineValue(mapObject.Mine);
-            weight += CoefficientsCalculator.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
+            weight += coefsCalc.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
             weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
             var enemyArmy = FindEnemyArmy(mapObject);
-            if (enemyArmy == null) return weight;
-
-            var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
-            weight = battleProfit <= 0 ? -2 : weight + battleProfit;
+            if (enemyArmy != null)
+            {
+                var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
+                weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
+            }
             //... и тут видимо для каждого поля нужно так сделать(
             return weight;
         }

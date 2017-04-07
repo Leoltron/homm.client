@@ -15,6 +15,7 @@ namespace Homm.Client
         public readonly BattleCalculator BattleCalc;
         private readonly LocationHelper locHelper;
         public readonly DataHandler DataHandler;
+        private readonly NeighboursHelper neighbsHelper;
 
         public AI(HommClient client, HommSensorData initialData, bool debugMode = false)
         {
@@ -24,6 +25,7 @@ namespace Homm.Client
             locWeightCalc = new LocationWeightCalculator(this);
             BattleCalc = new BattleCalculator(this);
             locHelper = new LocationHelper(this);
+            neighbsHelper = new NeighboursHelper(locHelper);
             while (!debugMode)
             {
                 NextMove();
@@ -39,28 +41,12 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var levels = NeighboursHelper.GroupByRange(CurrentData);
+                var levels = neighbsHelper.GroupByRange(CurrentData);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
-                {
-                    var level = levels[i];
-                    suitableLocations[i] = new Dictionary<Location, double>();
-                    foreach (var keyValuePair in level)
-                    {
-                        suitableLocations[i]
-                            .Add(
-                                keyValuePair.Key,
-                                locWeightCalc.GetMapObjectWeight(keyValuePair.Value));
-                        if (i == lastLevel) continue;
-                        var current = keyValuePair.Value;
-                        suitableLocations[i][keyValuePair.Key] +=
-                            NeighboursHelper.AddNeighboursWeight(
-                                suitableLocations[i + 1],
-                                CurrentData.Map, current.Location.ToLocation());
-                    }
-                }
-                //debug(suitableLocations); //смотрю коэффициенты на поле
+                    locWeightCalc.CalculateLevelWeights(suitableLocations, levels, i, lastLevel);
+                Debug(suitableLocations); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(suitableLocations[1])));
             }
         }

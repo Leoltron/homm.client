@@ -17,17 +17,20 @@ namespace Homm.Client
 
         public static double GetTerrainValue(Terrain terrain) => 0; //-Constants.CostOfMove[terrain] / 7;
 
-        public static double GetDwellingValue(Dwelling dwelling, string me) => dwelling != null && dwelling.Owner != me
-            ? 1
-            : 0;
-
+        public double GetDwellingValue(Dwelling dwelling, string me)
+        {
+            var canHire = HireHelper.HowManyCanHire(dwelling, ai.CurrentData.MyTreasury);
+            return dwelling != null && dwelling.Owner != me && canHire > 0
+                ? Constants.OneScoreWeight
+                : 0;
+        }
 
 
         public double GetPileValue(ResourcePile pile)
         {
             return pile == null
                 ? 0
-                : HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource) / 4e3;
+                : (HommRules.Current.ResourcesGainScores + pile.Amount * GetDegreeOfNeed(pile.Resource)) * Constants.OneScoreWeight;
         }
 
         private double GetDegreeOfNeed(Resource resource)
