@@ -3,39 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
-using Dwelling = HoMM.ClientClasses.Dwelling;
+using HoMM.Robot;
 
 namespace Homm.Client
 {
     public class AI
     {
         private readonly HommClient client;
-        public HommSensorData CurrentData;
 
-        public EnemyArmyData EnemyArmyData;
-        public ResourcesData ResourcesData;
-        private readonly LocationValueCalculator locCalc;
+        private readonly LocationWeightCalculator locWeightCalc;
         public readonly BattleCalculator BattleCalc;
+        private readonly LocationHelper locHelper;
+        public readonly DataHandler DataHandler;
 
         public AI(HommClient client, HommSensorData initialData, bool debugMode = false)
         {
             this.client = client;
-            CurrentData = initialData;
+            DataHandler= new DataHandler(initialData);
             this.client.OnSensorDataReceived += OnDataUpdated;
-            UpdateData();
-            locCalc = new LocationValueCalculator(this);
+            locWeightCalc = new LocationWeightCalculator(this);
             BattleCalc = new BattleCalculator(this);
+            locHelper = new LocationHelper(this);
             while (!debugMode)
             {
                 NextMove();
             }
         }
 
-        private void UpdateData()
-        {
-            EnemyArmyData = EnemyArmyData.Parse(CurrentData);
-            ResourcesData = ResourcesData.Parse(CurrentData);
-        }
+        public HommSensorData CurrentData => DataHandler.CurrentData;
 
         private void NextMove()
         {
@@ -56,7 +51,7 @@ namespace Homm.Client
                         suitableLocations[i]
                             .Add(
                                 keyValuePair.Key,
-                                locCalc.GetMapObjectWeight(keyValuePair.Value));
+                                locWeightCalc.GetMapObjectWeight(keyValuePair.Value));
                         if (i == lastLevel) continue;
                         var current = keyValuePair.Value;
                         suitableLocations[i][keyValuePair.Key] +=
@@ -66,8 +61,34 @@ namespace Homm.Client
                     }
                 }
                 //debug(suitableLocations); //смотрю коэффициенты на поле
-                OnDataUpdated(client.Act(locCalc.TakeMovementDecision(suitableLocations[1])));
+                OnDataUpdated(client.Act(TakeMovementDecision(suitableLocations[1])));
             }
+        }
+
+        private Location prevLocation = new Location(-1, -1);
+
+        private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
+        {
+            var maxs = firstLevel
+                .Where(pair => LocationHelper.CanStandThere(CurrentData.Map, pair.Key))
+                .OrderByDescending(pair => pair.Value)
+                .ToArray();
+            var ourLocation = CurrentData.Location.ToLocation();
+            foreach (var max in maxs)
+            {
+                foreach (var direction in Constants.Directions)
+                {
+                    var neighbor = ourLocation.NeighborAt(direction);
+                    if (neighbor != max.Key ||
+                        prevLocation.X == neighbor.X && prevLocation.Y == neighbor.Y)
+                        continue;
+                    prevLocation = ourLocation;
+                    return CommandGenerator.GetMoveCommand(direction);
+                }
+            }
+            var dir = locHelper.GetFirstAvailableDirection();
+            prevLocation = ourLocation;
+            return CommandGenerator.GetMoveCommand(dir);
         }
 
         private void TryHire()
@@ -79,32 +100,13 @@ namespace Homm.Client
 
         private MapObjectData GetObjectAtMe()
         {
-            return GetObjectAt(CurrentData.Location.ToLocation());
-        }
-
-        private MapObjectData GetObjectAt(Location location)
-        {
-            if (location.X < 0 || location.X >= CurrentData.Map.Width || location.Y < 0 ||
-                location.Y >= CurrentData.Map.Height)
-                return null;
-            return CurrentData.Map.Objects.FirstOrDefault(
-                x => x.Location.X == location.X && x.Location.Y == location.Y);
-        }
-
-        public static bool CanStandThere(MapData map, Location location)
-        {
-            if (location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
-                return false;
-            var obj = map.Objects.FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y);
-            return obj != null && obj.Wall == null;
+            return locHelper.GetObjectAt(CurrentData.Location.ToLocation());
         }
 
         private void OnDataUpdated(HommSensorData data)
         {
-            CurrentData = data;
-            UpdateData();
+            DataHandler.UpdateData(data);
         }
-
 
         //вот тут их смотрю
         private void Debug(IEnumerable<Dictionary<Location, double>> weights)

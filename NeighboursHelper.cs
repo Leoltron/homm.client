@@ -12,7 +12,7 @@ namespace Homm.Client
             Dictionary<Location, double> previousLevel,
             MapData map, Location currentLoc)
         {
-            return AI.CanStandThere(map, currentLoc) ?
+            return LocationHelper.CanStandThere(map, currentLoc) ?
                 currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 2) :
                 0;
         }

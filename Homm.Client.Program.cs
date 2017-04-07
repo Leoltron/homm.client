@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using HoMM.Sensors;
 using HoMM;
 using HoMM.ClientClasses;
-using System.Collections.Generic;
 
 namespace Homm.Client
 {

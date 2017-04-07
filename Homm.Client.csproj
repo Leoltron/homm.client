@@ -57,8 +57,10 @@
     <Compile Include="CoefficientsCalculator.cs" />
     <Compile Include="CommandGenerator.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DataHandler.cs" />
     <Compile Include="HireHelper.cs" />
-    <Compile Include="LocationValueCalculator.cs" />
+    <Compile Include="LocationHelper.cs" />
+    <Compile Include="LocationWeightCalculator.cs" />
     <Compile Include="DictExtensions.cs" />
     <Compile Include="EnemyArmyData.cs" />
     <Compile Include="Homm.Client.Program.cs" />
