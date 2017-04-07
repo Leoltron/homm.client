@@ -24,10 +24,10 @@ namespace Homm.Client
         {
             var level = levels[stage];
             suitableLocations[stage] = GetBaseLevelCoefficients(level);
-            suitableLocations[stage] = NeighboursHelper.SpreadSmellAlongLevel(suitableLocations[stage], ai.CurrentData.Map);
             if (stage != lastStage)
                 NeighboursHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
-            
+            suitableLocations[stage] = NeighboursHelper.SpreadSmellAlongLevel(suitableLocations[stage], ai.CurrentData.Map);
+
         }
 
         private Dictionary<Location, double> GetBaseLevelCoefficients(List<MapObjectData> level)
