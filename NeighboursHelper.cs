@@ -15,7 +15,7 @@ namespace Homm.Client
             this.locHelper = locHelper;
         }
 
-        public static double AddNeighboursWeight(
+        private static double AddNeighboursWeight(
             Dictionary<Location, double> previousLevel,
             MapData map, 
             Location currentLoc)
@@ -23,6 +23,44 @@ namespace Homm.Client
             return LocationHelper.CanStandThere(map, currentLoc) 
                 ? currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 1.5) 
                 : 0;
+        }
+
+        public static void SpreadSmellFromPrevLevel(
+            List<MapObjectData> level,
+            Dictionary<Location, double>[] suitableLocations,
+            MapData map,
+            int stage)
+        {
+            foreach (var mapObject in level)
+            {
+                var location = mapObject.Location.ToLocation();
+                if (suitableLocations[stage][location] >= 0)
+                    suitableLocations[stage][location] += AddNeighboursWeight(
+                                                             suitableLocations[stage + 1],
+                                                             map,
+                                                             mapObject.Location.ToLocation());
+            }
+        }
+
+        public static Dictionary<Location, double> SpreadSmellAlongLevel(Dictionary<Location, double> level, MapData map)
+        {
+            var renew = new Dictionary<Location, double>(level);
+            foreach (var location in level.Keys)
+            {
+                var neighbs = GetLevelNeighbours(level, location);
+                foreach (var neighb in neighbs)
+                {
+                    if (LocationHelper.CanStandThere(map, neighb))
+                        renew[neighb] += level[location] / 1.5;
+                }
+            }
+            return renew;
+        }
+
+        private static List<Location> GetLevelNeighbours(Dictionary<Location, double> level, Location current)
+        {
+            var neighbs = current.Neighborhood;
+            return neighbs.Where(level.ContainsKey).ToList();
         }
 
         public List<MapObjectData>[] GroupByRange(HommSensorData data)

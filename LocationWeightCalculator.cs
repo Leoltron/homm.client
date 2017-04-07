@@ -23,21 +23,24 @@ namespace Homm.Client
             int lastStage)
         {
             var level = levels[stage];
-            suitableLocations[stage] = new Dictionary<Location, double>();
+            suitableLocations[stage] = GetBaseLevelCoefficients(level);
+            suitableLocations[stage] = NeighboursHelper.SpreadSmellAlongLevel(suitableLocations[stage], ai.CurrentData.Map);
+            if (stage != lastStage)
+                NeighboursHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
+            
+        }
+
+        private Dictionary<Location, double> GetBaseLevelCoefficients(List<MapObjectData> level)
+        {
+            var suitableLocations = new Dictionary<Location, double>();
             foreach (var mapObject in level)
             {
                 var location = mapObject.Location.ToLocation();
-                suitableLocations[stage].Add(
-                                            location,
-                                            GetMapObjectWeight(mapObject));
-                if (stage == lastStage) continue;
-                var current = mapObject;
-                if (suitableLocations[stage][location] >= 0)
-                    suitableLocations[stage][location] += NeighboursHelper.AddNeighboursWeight(
-                                                            suitableLocations[stage + 1],
-                                                            ai.CurrentData.Map, 
-                                                            current.Location.ToLocation());
+                suitableLocations.Add(
+                        location,
+                        GetMapObjectWeight(mapObject));
             }
+            return suitableLocations;
         }
         
         private double GetMapObjectWeight(MapObjectData mapObject)
@@ -45,7 +48,7 @@ namespace Homm.Client
             var weight = 0d;
             weight += coefsCalc.GetPileValue(mapObject.ResourcePile);
             weight += coefsCalc.GetMineValue(mapObject.Mine);
-            weight += CoefficientsCalculator.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
+            weight += coefsCalc.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
             weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
             var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
