@@ -47,7 +47,7 @@ namespace Homm.Client
         {
             var weight = 0d;
             weight += coefsCalc.GetPileValue(mapObject.ResourcePile);
-            weight += coefsCalc.GetMineValue(mapObject.Mine);
+            weight += coefsCalc.GetMineValue(mapObject.Mine, ai.CurrentData.MyRespawnSide);
             weight += coefsCalc.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
             weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
             var enemyArmy = FindEnemyArmy(mapObject);

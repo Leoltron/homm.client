@@ -20,7 +20,7 @@ namespace Homm.Client
         public double GetDwellingValue(Dwelling dwelling, string me)
         {
             var canHire = HireHelper.HowManyCanHire(dwelling, ai.CurrentData.MyTreasury);
-            return dwelling != null && dwelling.Owner != me && canHire > 0
+            return dwelling != null && canHire >= 1
                 ? Constants.OneScoreWeight
                 : 0;
         }
@@ -38,14 +38,14 @@ namespace Homm.Client
             return ai.DataHandler.GetDegreeOfNeed(resource);
         }
 
-        public double GetMineValue(Mine mine)
+        public double GetMineValue(Mine mine, string me)
         {
             var result = mine == null
                 ? 0
                 : (HommRules.Current.MineOwningDailyScores +
                    GetDegreeOfNeed(mine.Resource) * HommRules.Current.MineDailyResourceYield) *
                   Constants.MineCoefficent;
-            if (mine == null)
+            if (mine == null || mine.Owner == me)
                 return 0;
             return mine.Owner != ai.CurrentData.MyRespawnSide ? result : 0;
         }

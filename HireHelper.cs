@@ -17,7 +17,7 @@ namespace Homm.Client
                 where
                 hireCost[resource] > 0 &&
                 resourcesAvailable.ContainsKey(resource) &&
-                resourcesAvailable[resource] > 0
+                resourcesAvailable[resource] >= 0
                 select resourcesAvailable[resource] / hireCost[resource]).ToList();
             canHireWithResource.Add(dwelling.AvailableToBuyCount);
             return canHireWithResource.Min();

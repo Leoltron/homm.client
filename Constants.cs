@@ -9,7 +9,7 @@ namespace Homm.Client
     public static class Constants
     {
         public const double GoldMilitiaCounterConst = 1d; //TODO: Настроить константы
-        public const double MineCoefficent = 6817.815439391435;
+        public const double MineCoefficent = 5817.815439391435;
         public const double ResourceRarityCoefficent = 10 / 1e3;
         public const double ArmyEfficencyCoefficent = 10 / 1e3;
         public const double OneScoreWeight = 85222.69299239293;

@@ -21,7 +21,7 @@ namespace Homm.Client
             Location currentLoc)
         {
             return LocationHelper.CanStandThere(map, currentLoc) 
-                ? currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 1.5) 
+                ? currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 8) 
                 : 0;
         }
 
@@ -50,8 +50,8 @@ namespace Homm.Client
                 var neighbs = GetLevelNeighbours(level, location);
                 foreach (var neighb in neighbs)
                 {
-                    if (LocationHelper.CanStandThere(map, neighb))
-                        renew[neighb] += level[location] / 1.5;
+                    if (LocationHelper.CanStandThere(map, neighb) && level[neighb] >= 0)
+                        renew[neighb] += level[location] / 8;
                 }
             }
             return renew;
