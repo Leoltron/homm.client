@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HoMM;
 using HoMM.ClientClasses;
 
@@ -9,36 +8,40 @@ namespace Homm.Client
     {
         private readonly AI ai;
         private readonly CoefficientsCalculator coefsCalc;
+        private readonly NeighboursHelper neighbsHelper;
 
-        public LocationWeightCalculator(AI ai)
+        public LocationWeightCalculator(AI ai, LocationHelper locHelper)
         {
             this.ai = ai;
             coefsCalc = new CoefficientsCalculator(ai);
+            neighbsHelper = new NeighboursHelper(locHelper);
         }
 
         public void CalculateLevelWeights(
             Dictionary<Location, double>[] suitableLocations,
-            List<MapObjectData>[] levels,
+            Dictionary<Location, MapObjectData>[] levels,
             int stage,
             int lastStage)
         {
             var level = levels[stage];
-            suitableLocations[stage] = GetBaseLevelCoefficients(level);
+            if (stage == 9)
+                ;
+            suitableLocations[stage] = GetBaseLevelCoefficients(level, stage);
             if (stage != lastStage)
-                NeighboursHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
+                neighbsHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
             suitableLocations[stage] = NeighboursHelper.SpreadSmellAlongLevel(suitableLocations[stage], ai.CurrentData.Map);
 
         }
 
-        private Dictionary<Location, double> GetBaseLevelCoefficients(List<MapObjectData> level)
+        private Dictionary<Location, double> GetBaseLevelCoefficients(Dictionary<Location, MapObjectData> level, int stage)
         {
             var suitableLocations = new Dictionary<Location, double>();
-            foreach (var mapObject in level)
+            foreach (var location in level.Keys)
             {
-                var location = mapObject.Location.ToLocation();
-                suitableLocations.Add(
-                        location,
-                        GetMapObjectWeight(mapObject));
+                if (location.X == 9 && location.Y == 0)
+                    ;
+                var weight = level[location] != null ? GetMapObjectWeight(level[location]) : 0;
+                suitableLocations.Add(location, weight);
             }
             return suitableLocations;
         }

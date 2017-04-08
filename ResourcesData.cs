@@ -22,7 +22,7 @@ namespace Homm.Client
         public double GetRarity(Resource type)
         {
             if (!resources.ContainsKey(type) || resources[type] == 0)
-                return double.MaxValue;
+                return 200;
             return (double) total / resources[type];
         }
 

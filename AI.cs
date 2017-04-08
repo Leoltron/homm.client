@@ -22,9 +22,9 @@ namespace Homm.Client
             this.client = client;
             DataHandler= new DataHandler(initialData);
             this.client.OnSensorDataReceived += OnDataUpdated;
-            locWeightCalc = new LocationWeightCalculator(this);
-            BattleCalc = new BattleCalculator(this);
             locHelper = new LocationHelper(this);
+            locWeightCalc = new LocationWeightCalculator(this, locHelper);
+            BattleCalc = new BattleCalculator(this);
             neighbsHelper = new NeighboursHelper(locHelper);
             while (!debugMode)
             {
@@ -41,9 +41,12 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var levels = neighbsHelper.GroupByRange(CurrentData);
+                var levelsLocations = neighbsHelper.GroupByRange(CurrentData);
+                var levels = OutsideVisibility.Refresh(levelsLocations, locHelper);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
+                if (CurrentData.Location.X == 0 && CurrentData.Location.Y == 0)
+                    ;
                 for (var i = lastLevel; i > 0; i--)
                     locWeightCalc.CalculateLevelWeights(suitableLocations, levels, i, lastLevel);
                 Debug(suitableLocations); //смотрю коэффициенты на поле
