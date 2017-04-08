@@ -63,6 +63,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DataHandler.cs" />
     <Compile Include="Tests\EnemyArmyDataTests.cs" />
+    <Compile Include="Tests\HireTests.cs" />
     <Compile Include="Tests\ResourceDataTests.cs" />
     <Compile Include="Tests\DictExtTests.cs" />
     <Compile Include="HireHelper.cs" />
