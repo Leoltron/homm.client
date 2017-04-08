@@ -42,6 +42,7 @@ namespace Homm.Client
             {
                 TryHire();
                 var levels = neighbsHelper.GroupByRange(CurrentData);
+                levels = OutsideVisibility.Refresh(levels);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
                 for (var i = lastLevel; i > 0; i--)
