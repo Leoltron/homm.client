@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HoMM;
@@ -8,7 +9,7 @@ namespace Homm.Client
     public struct EnemyArmyData
     {
         private readonly Dictionary<UnitType, int> unitAmount;
-        private readonly int amountOverall;
+        internal readonly int amountOverall;
 
         public double GetPart(UnitType type)
         {
@@ -17,9 +18,11 @@ namespace Homm.Client
             return (double)unitAmount[type] / amountOverall;
         }
 
-        private EnemyArmyData(Dictionary<UnitType, int> unitAmount)
+        internal EnemyArmyData(Dictionary<UnitType, int> unitAmount)
         {
             this.unitAmount = unitAmount;
+            if (unitAmount.Values.Any(amount => amount < 0))
+                throw new ArgumentException("Unit amount cannot be less than zero!");
             amountOverall = this.unitAmount.Sum(u => u.Value);
         }
 

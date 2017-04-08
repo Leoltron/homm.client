@@ -62,7 +62,9 @@
     <Compile Include="CommandGenerator.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DataHandler.cs" />
-    <Compile Include="DictExtTests.cs" />
+    <Compile Include="Tests\EnemyArmyDataTests.cs" />
+    <Compile Include="Tests\ResourceDataTests.cs" />
+    <Compile Include="Tests\DictExtTests.cs" />
     <Compile Include="HireHelper.cs" />
     <Compile Include="LocationHelper.cs" />
     <Compile Include="LocationWeightCalculator.cs" />

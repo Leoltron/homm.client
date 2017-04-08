@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Homm.Client
+namespace Homm.Client.Tests
 {
     [TestFixture]
     internal class DictExtTests

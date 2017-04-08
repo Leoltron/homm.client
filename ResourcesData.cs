@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HoMM;
@@ -8,11 +9,13 @@ namespace Homm.Client
     public struct ResourcesData
     {
         private readonly Dictionary<Resource, int> resources;
-        private readonly int total;
+        internal readonly int total;
 
-        private ResourcesData(Dictionary<Resource, int> resources)
+        public ResourcesData(Dictionary<Resource, int> resources)
         {
             this.resources = resources;
+            if (resources.Values.Any(amount => amount < 0))
+                throw new ArgumentException("Resource amount cannot be less than zero!");
             total = resources.Sum(pair => pair.Value);
         }
 
