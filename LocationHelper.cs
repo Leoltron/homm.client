@@ -18,10 +18,8 @@ namespace Homm.Client
             if (location.X < 0 || location.X >= ai.CurrentData.Map.Width || location.Y < 0 ||
                 location.Y >= ai.CurrentData.Map.Height)
                 return null;
-            var mapObject = ai.CurrentData.Map.Objects.FirstOrDefault(
+            return ai.CurrentData.Map.Objects.FirstOrDefault(
                 x => x.Location.X == location.X && x.Location.Y == location.Y);
-            var emptyObject = new MapObjectData {Location = new LocationInfo(location.X, location.Y)};
-            return mapObject ?? emptyObject;
         }
 
         public static bool CanStandThere(MapData map, Location location)
