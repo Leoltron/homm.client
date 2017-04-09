@@ -56,6 +56,8 @@ namespace Homm.Client
                 weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
             }
             //... и тут видимо для каждого поля нужно так сделать(
+            if (Bridges.IsBridge(mapObject.Location.ToLocation()))
+                weight *= 5;
             return weight;
         }
 
