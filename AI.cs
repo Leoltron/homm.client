@@ -15,17 +15,15 @@ namespace Homm.Client
         public readonly BattleCalculator BattleCalc;
         private readonly LocationHelper locHelper;
         public readonly DataHandler DataHandler;
-        private readonly NeighboursHelper neighbsHelper;
 
         public AI(HommClient client, HommSensorData initialData, bool debugMode = false)
         {
             this.client = client;
             DataHandler= new DataHandler(initialData);
             this.client.OnSensorDataReceived += OnDataUpdated;
-            locHelper = new LocationHelper(this);
+            locHelper = new LocationHelper(DataHandler);
             locWeightCalc = new LocationWeightCalculator(this, locHelper);
             BattleCalc = new BattleCalculator(this);
-            neighbsHelper = new NeighboursHelper(locHelper);
             while (!debugMode)
             {
                 NextMove();
@@ -41,7 +39,7 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var levelsLocations = neighbsHelper.GroupByRange(CurrentData);
+                var levelsLocations = NeighboursHelper.GroupByRange(CurrentData);
                 var levels = OutsideVisibility.Refresh(levelsLocations, locHelper);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
@@ -59,7 +57,7 @@ namespace Homm.Client
         private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
         {
             var maxs = firstLevel
-                .Where(pair => LocationHelper.CanStandThere(CurrentData.Map, pair.Key))
+                .Where(pair => LocationHelper.CanStandThere(pair.Key, CurrentData.Map))
                 .OrderByDescending(pair => pair.Value)
                 .ToArray();
             var ourLocation = CurrentData.Location.ToLocation();

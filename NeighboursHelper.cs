@@ -8,7 +8,7 @@ namespace Homm.Client
 {
     public class NeighboursHelper
     {
-        private LocationHelper locHelper;
+        private readonly LocationHelper locHelper;
 
         public NeighboursHelper(LocationHelper locHelper)
         {
@@ -20,7 +20,7 @@ namespace Homm.Client
             MapData map, 
             Location currentLoc)
         {
-            return LocationHelper.CanStandThere(map, currentLoc) ||  locHelper.GetObjectAt(currentLoc) == null && previousLevel.Count > 0
+            return LocationHelper.CanStandThere(currentLoc, map) ||  locHelper.GetObjectAt(currentLoc) == null && previousLevel.Count > 0
                 ? currentLoc.Neighborhood.Where(previousLevel.ContainsKey).Sum(neighb => previousLevel[neighb] / 8) 
                 : 0;
         }
@@ -46,23 +46,22 @@ namespace Homm.Client
             var renew = new Dictionary<Location, double>(level);
             foreach (var location in level.Keys)
             {
-                var neighbs = GetLevelNeighbours(level, location);
-                foreach (var neighb in neighbs)
+                foreach (var neighb in GetLevelNeighbours(level, location))
                 {
-                    if (LocationHelper.CanStandThere(map, neighb) && level[neighb] >= 0)
+                    if (LocationHelper.CanStandThere(neighb, map) && level[neighb] >= 0)
                         renew[neighb] += level[location] / 8;
                 }
             }
             return renew;
         }
 
-        private static List<Location> GetLevelNeighbours(Dictionary<Location, double> level, Location current)
+        private static IEnumerable<Location> GetLevelNeighbours(Dictionary<Location, double> level, Location current)
         {
             var neighbs = current.Neighborhood;
-            return neighbs.Where(level.ContainsKey).ToList();
+            return neighbs.Where(level.ContainsKey);
         }
 
-        public List<Location>[] GroupByRange(HommSensorData data)
+        public static List<Location>[] GroupByRange(HommSensorData data)
         {
             var levels =  new List<List<Location>>();
             var visited = new HashSet<Location>();
@@ -83,7 +82,7 @@ namespace Homm.Client
                 visited.Add(current);
                 var neighbs = current.Neighborhood;
                 foreach (var neighb in neighbs)
-                    if (locHelper.IsInsideMap(neighb, data.Map) && !looked.Contains(neighb))
+                    if (LocationHelper.IsInsideMap(neighb, data.Map) && !looked.Contains(neighb))
                     {
                         looked.Add(neighb);
                         levels[deep + 1].Add(neighb);
