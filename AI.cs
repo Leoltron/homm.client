@@ -39,7 +39,7 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var levelsLocations = NeighboursHelper.GroupByRange(CurrentData);
+                var levelsLocations = NeighboursHelper.GroupByRange(DataHandler);
                 var levels = OutsideVisibility.Refresh(levelsLocations, locHelper);
                 Bridges.RefreshBridges(Bridges.ToGraph(levels, CurrentData.Map));
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];

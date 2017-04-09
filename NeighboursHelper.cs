@@ -61,13 +61,13 @@ namespace Homm.Client
             return neighbs.Where(level.ContainsKey);
         }
 
-        public static List<Location>[] GroupByRange(HommSensorData data)
+        public static List<Location>[] GroupByRange(ILocationMapProvider map)
         {
             var levels =  new List<List<Location>>();
             var visited = new HashSet<Location>();
             var looked = new HashSet<Location>();
             var queue = new Queue<Tuple<Location, int>>();
-            var start = data.Location.ToLocation();
+            var start = map.GetCurrentLocation();
             queue.Enqueue(Tuple.Create(start, 0));
             levels.Add(new List<Location>());
             levels[0].Add(start);
@@ -82,7 +82,7 @@ namespace Homm.Client
                 visited.Add(current);
                 var neighbs = current.Neighborhood;
                 foreach (var neighb in neighbs)
-                    if (LocationHelper.IsInsideMap(neighb, data.Map) && !looked.Contains(neighb))
+                    if (LocationHelper.IsInsideMap(neighb, map.GetMap()) && !looked.Contains(neighb))
                     {
                         looked.Add(neighb);
                         levels[deep + 1].Add(neighb);
