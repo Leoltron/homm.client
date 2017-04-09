@@ -17,8 +17,8 @@ namespace Homm.Client.Tests
             var d = GetDictionary();
             d.AddOrSum("two", 5);
             d.AddOrSum("three", 4);
-            Assert.AreEqual(d["two"], 7);
-            Assert.AreEqual(d["three"], 7);
+            Assert.AreEqual(7, d["two"]);
+            Assert.AreEqual(7, d["three"]);
         }
 
         [Test]
@@ -27,8 +27,8 @@ namespace Homm.Client.Tests
             var d = GetDictionary();
             d.AddOrSum("four", 4);
             d.AddOrSum("five", 5);
-            Assert.AreEqual(d["four"], 4);
-            Assert.AreEqual(d["five"], 5);
+            Assert.AreEqual(4, d["four"]);
+            Assert.AreEqual(5, d["five"]);
         }
     }
 }

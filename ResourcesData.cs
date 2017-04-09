@@ -9,21 +9,22 @@ namespace Homm.Client
     public struct ResourcesData
     {
         private readonly Dictionary<Resource, int> resources;
-        internal readonly int total;
+        internal readonly int Total;
 
         public ResourcesData(Dictionary<Resource, int> resources)
         {
             this.resources = resources;
             if (resources.Values.Any(amount => amount < 0))
                 throw new ArgumentException("Resource amount cannot be less than zero!");
-            total = resources.Sum(pair => pair.Value);
+            Total = resources.Sum(pair => pair.Value);
         }
 
+        internal const double MaxRarity = 200;
         public double GetRarity(Resource type)
         {
             if (!resources.ContainsKey(type) || resources[type] == 0)
-                return 200;
-            return (double) total / resources[type];
+                return MaxRarity;
+            return (double) Total / resources[type];
         }
 
         private const double MineCoefficent = 1; //TODO: Настроить коэффицент

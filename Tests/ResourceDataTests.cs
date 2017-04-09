@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HoMM;
 using NUnit.Framework;
+using static Homm.Client.ResourcesData;
 
 // ReSharper disable UnusedVariable
 
@@ -38,7 +39,7 @@ namespace Homm.Client.Tests
                 {Resource.Iron, 10},
                 {Resource.Gold, 100}
             });
-            Assert.AreEqual(resData.total, 135);
+            Assert.AreEqual(135, resData.Total);
 
             resData = new ResourcesData(new Dictionary<Resource, int>
             {
@@ -47,7 +48,7 @@ namespace Homm.Client.Tests
                 {Resource.Iron, 0},
                 {Resource.Gold, 100}
             });
-            Assert.AreEqual(resData.total, 350);
+            Assert.AreEqual(350, resData.Total);
         }
 
         [Test]
@@ -60,10 +61,10 @@ namespace Homm.Client.Tests
                 {Resource.Iron, 10},
                 {Resource.Gold, 100}
             });
-            Assert.AreEqual(resData.GetRarity(Resource.Ebony), 27, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Glass), 6.75, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Iron), 13.5, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Gold), 1.35, 1e-5);
+            Assert.AreEqual(27, resData.GetRarity(Resource.Ebony), 1e-5);
+            Assert.AreEqual(6.75, resData.GetRarity(Resource.Glass), 1e-5);
+            Assert.AreEqual(13.5, resData.GetRarity(Resource.Iron), 1e-5);
+            Assert.AreEqual(1.35, resData.GetRarity(Resource.Gold), 1e-5);
 
             resData = new ResourcesData(new Dictionary<Resource, int>
             {
@@ -72,10 +73,10 @@ namespace Homm.Client.Tests
                 {Resource.Iron, 0},
                 {Resource.Gold, 100}
             });
-            Assert.AreEqual(resData.GetRarity(Resource.Ebony), 1.4, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Glass), double.MaxValue, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Iron), double.MaxValue, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Gold), 3.5, 1e-5);
+            Assert.AreEqual(1.4, resData.GetRarity(Resource.Ebony), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Glass), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Iron), 1e-5);
+            Assert.AreEqual(3.5, resData.GetRarity(Resource.Gold), 1e-5);
         }
 
         [Test]
@@ -86,20 +87,20 @@ namespace Homm.Client.Tests
                 {Resource.Ebony, 5},
                 {Resource.Glass, 20}
             });
-            Assert.AreEqual(resData.GetRarity(Resource.Ebony), 5, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Glass), 1.25, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Iron), double.MaxValue, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Gold), double.MaxValue, 1e-5);
+            Assert.AreEqual(5, resData.GetRarity(Resource.Ebony), 1e-5);
+            Assert.AreEqual(1.25, resData.GetRarity(Resource.Glass), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Iron), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Gold), 1e-5);
         }
 
         [Test]
         public void TestRarityNoResources()
         {
             var resData = new ResourcesData(new Dictionary<Resource, int>());
-            Assert.AreEqual(resData.GetRarity(Resource.Ebony), double.MaxValue, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Glass), double.MaxValue, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Iron), double.MaxValue, 1e-5);
-            Assert.AreEqual(resData.GetRarity(Resource.Gold), double.MaxValue, 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Ebony), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Glass), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Iron), 1e-5);
+            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Gold), 1e-5);
         }
     }
 }
