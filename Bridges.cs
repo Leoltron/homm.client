@@ -76,7 +76,7 @@ namespace Homm.Client
             foreach (var vertex in vertexes)
             {
                 var neighbs = vertex.Neighborhood
-                                    .Where(neighb => vertexes.Contains(neighb) && LocationHelper.CanStandThere(map, neighb))
+                                    .Where(neighb => vertexes.Contains(neighb) && LocationHelper.CanStandThere(neighb, map))
                                     .ToList();
                 graph.Add(vertex, neighbs);
             }
