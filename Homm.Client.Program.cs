@@ -8,13 +8,13 @@ namespace Homm.Client
     class Program
     {
         // Вставьте сюда свой личный CvarcTag для того, чтобы учавствовать в онлайн соревнованиях.
-        public static readonly Guid CvarcTag = Guid.Parse("1014f679-473d-46e8-9a8c-b1c91a62dc74");
+        public static readonly Guid CvarcTag = Guid.Parse("00000000-0000-0000-0000-000000000000");
 
 
         public static void Main(string[] args)
         {
             if (args.Length == 0)
-                args = new[] { "homm.ulearn.me", "18700" };
+                args = new[] { "127.0.0.1", "18700" };
             var ip = args[0];
             var port = int.Parse(args[1]);
 
@@ -32,7 +32,7 @@ namespace Homm.Client
                                             // Вы можете увеличить это время для отладки, чтобы ваш клиент не был отключен, 
                                             // пока вы разглядываете программу в режиме дебаггинга.
 
-                seed: 9,                    // Seed карты. Используйте этот параметр, чтобы получать одну и ту же карту и отлаживаться на ней.
+                seed: 7,                    // Seed карты. Используйте этот параметр, чтобы получать одну и ту же карту и отлаживаться на ней.
                                             // Иногда меняйте этот параметр, потому что ваш код должен хорошо работать на любой карте.
 
                 spectacularView: true,      // Вы можете отключить графон, заменив параметр на false.

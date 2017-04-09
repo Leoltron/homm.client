@@ -52,8 +52,6 @@ namespace Homm.Client
             }
         }
 
-        //private Location prevLocation = new Location(-1, -1);
-
         private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
         {
             var maxs = firstLevel
@@ -66,15 +64,12 @@ namespace Homm.Client
                 foreach (var direction in Constants.Directions)
                 {
                     var neighbor = ourLocation.NeighborAt(direction);
-                    if (neighbor != max.Key)// ||
-                      //  prevLocation.X == neighbor.X && prevLocation.Y == neighbor.Y)
+                    if (neighbor != max.Key)
                         continue;
-                  //  prevLocation = ourLocation;
                     return CommandGenerator.GetMoveCommand(direction);
                 }
             }
             var dir = locHelper.GetFirstAvailableDirection();
-           // prevLocation = ourLocation;
             return CommandGenerator.GetMoveCommand(dir);
         }
 
