@@ -3,7 +3,7 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    public class DataHandler
+    public class DataHandler : ILocationMapProvider
     {
         public HommSensorData CurrentData;
         private EnemyArmyData enemyArmyData;
@@ -40,6 +40,16 @@ namespace Homm.Client
             return type == UnitType.Militia
                 ? Constants.GoldMilitiaCounterConst
                 : enemyArmyData.GetPart(Constants.UnitCounters[type]);
+        }
+
+        public MapData GetMap()
+        {
+            return CurrentData.Map;
+        }
+
+        public Location GetCurrentLocation()
+        {
+            return CurrentData.Location.ToLocation();
         }
     }
 }

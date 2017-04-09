@@ -6,25 +6,26 @@ namespace Homm.Client
 {
     public class LocationHelper
     {
-        private readonly AI ai;
+        private readonly ILocationMapProvider mapProvider;
 
-        public LocationHelper(AI ai)
+        public LocationHelper(ILocationMapProvider mapProvider)
         {
-            this.ai = ai;
+            this.mapProvider = mapProvider;
         }
 
         public MapObjectData GetObjectAt(Location location)
         {
-            if (location.X < 0 || location.X >= ai.CurrentData.Map.Width || location.Y < 0 ||
-                location.Y >= ai.CurrentData.Map.Height)
+            var map = mapProvider.GetMap();
+            if (location.X < 0 || location.X >= map.Width || location.Y < 0 ||
+                location.Y >= map.Height)
                 return null;
-            return ai.CurrentData.Map.Objects.FirstOrDefault(
+            return map.Objects.FirstOrDefault(
                 x => x.Location.X == location.X && x.Location.Y == location.Y);
         }
 
-        public static bool CanStandThere(MapData map, Location location)
+        public static bool CanStandThere(Location location, MapData map)
         {
-            if (location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
+            if (!IsInsideMap(location,map))
                 return false;
             var obj = map.Objects.FirstOrDefault(x => x.Location.X == location.X && x.Location.Y == location.Y);
             return obj != null && obj.Wall == null;
@@ -32,12 +33,12 @@ namespace Homm.Client
 
         public Direction GetFirstAvailableDirection()
         {
-            var curLocation = ai.CurrentData.Location.ToLocation();
+            var curLocation = mapProvider.GetCurrentLocation();
             return Constants.Directions.FirstOrDefault(
-                direction => CanStandThere(ai.CurrentData.Map, curLocation.NeighborAt(direction)));
+                direction => CanStandThere(curLocation.NeighborAt(direction), mapProvider.GetMap()));
         }
 
-        public bool IsInsideMap(Location location, MapData map)
+        public static bool IsInsideMap(Location location, MapData map)
         {
             return location.X >= 0 && location.Y >= 0 && location.X < map.Width && location.Y < map.Height;
         }
