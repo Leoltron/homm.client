@@ -8,13 +8,13 @@ namespace Homm.Client
     class Program
     {
         // Вставьте сюда свой личный CvarcTag для того, чтобы учавствовать в онлайн соревнованиях.
-        public static readonly Guid CvarcTag = Guid.Parse("00000000-0000-0000-0000-000000000000");
+        public static readonly Guid CvarcTag = Guid.Parse("1014f679-473d-46e8-9a8c-b1c91a62dc74");
 
 
         public static void Main(string[] args)
         {
             if (args.Length == 0)
-                args = new[] { "127.0.0.1", "18700" };
+                args = new[] { "homm.ulearn.me", "18700" };
             var ip = args[0];
             var port = int.Parse(args[1]);
 
@@ -41,7 +41,7 @@ namespace Homm.Client
 
                 level: HommLevel.Level3,    // Здесь можно выбрать уровень. На уровне два на карте присутствует оппонент.
 
-                isOnLeftSide: true          // Вы можете указать, с какой стороны будет находиться замок героя при игре на втором уровне.
+                isOnLeftSide: false         // Вы можете указать, с какой стороны будет находиться замок героя при игре на втором уровне.
                                             // Помните, что на сервере выбор стороны осуществляется случайным образом, поэтому ваш код
                                             // должен работать одинаково хорошо в обоих случаях.
             );

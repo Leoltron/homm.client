@@ -24,8 +24,6 @@ namespace Homm.Client
             int lastStage)
         {
             var level = levels[stage];
-            if (stage == 9)
-                ;
             suitableLocations[stage] = GetBaseLevelCoefficients(level, stage);
             if (stage != lastStage)
                 neighbsHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
@@ -38,8 +36,6 @@ namespace Homm.Client
             var suitableLocations = new Dictionary<Location, double>();
             foreach (var location in level.Keys)
             {
-                if (location.X == 9 && location.Y == 0)
-                    ;
                 var weight = level[location] != null ? GetMapObjectWeight(level[location]) : 0;
                 suitableLocations.Add(location, weight);
             }
