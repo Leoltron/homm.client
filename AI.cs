@@ -43,16 +43,12 @@ namespace Homm.Client
                 var levels = OutsideVisibility.Refresh(levelsLocations, locHelper);
                 var suitableLocations = new Dictionary<Location, double>[levels.Length];
                 var lastLevel = levels.Length - 1;
-                if (CurrentData.Location.X == 0 && CurrentData.Location.Y == 0)
-                    ;
                 for (var i = lastLevel; i > 0; i--)
                     locWeightCalc.CalculateLevelWeights(suitableLocations, levels, i, lastLevel);
                 Debug(suitableLocations); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(suitableLocations[1])));
             }
         }
-
-        //private Location prevLocation = new Location(-1, -1);
 
         private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
         {
@@ -66,15 +62,12 @@ namespace Homm.Client
                 foreach (var direction in Constants.Directions)
                 {
                     var neighbor = ourLocation.NeighborAt(direction);
-                    if (neighbor != max.Key)// ||
-                      //  prevLocation.X == neighbor.X && prevLocation.Y == neighbor.Y)
+                    if (neighbor != max.Key)
                         continue;
-                  //  prevLocation = ourLocation;
                     return CommandGenerator.GetMoveCommand(direction);
                 }
             }
             var dir = locHelper.GetFirstAvailableDirection();
-           // prevLocation = ourLocation;
             return CommandGenerator.GetMoveCommand(dir);
         }
 

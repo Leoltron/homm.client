@@ -29,9 +29,10 @@ namespace Homm.Client
         public double GetDegreeOfNeed(Resource resourceType)
         {
             //TODO: Вынести в переменную, чтобы считалась лишь раз между двумя обновлениями данных?
-            return GetCounterMeetingPropability(Constants.ResourceToUnit[resourceType]) *
+            var coeff = GetCounterMeetingPropability(Constants.ResourceToUnit[resourceType]) *
                    Constants.ArmyEfficencyCoefficent
                    + resourcesData.GetRarity(resourceType) * Constants.ResourceRarityCoefficent;
+            return resourceType == Resource.Gold ? 2 * coeff : coeff;
         }
 
         private double GetCounterMeetingPropability(UnitType type)
