@@ -56,5 +56,14 @@ namespace Homm.Client.Tests
                 resources[key] = UnitsConstants.Current.UnitCost[UnitType.Militia][key] * 5;
             Assert.AreEqual(0, HireHelper.HowManyCanHire(dwelling, resources));
         }
+
+        [Test]
+        public void TestNullDwelling()
+        {
+            var resources = new Dictionary<Resource, int>();
+            foreach (var key in UnitsConstants.Current.UnitCost[UnitType.Militia].Keys)
+                resources[key] = UnitsConstants.Current.UnitCost[UnitType.Militia][key] * 5;
+            Assert.AreEqual(0, HireHelper.HowManyCanHire(null, resources));
+        }
     }
 }

@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using HoMM;
 using NUnit.Framework;
 using static Homm.Client.ResourcesData;
+using Mine = HoMM.ClientClasses.Mine;
+using ResourcePile = HoMM.ClientClasses.ResourcePile;
 
 // ReSharper disable UnusedVariable
 
 namespace Homm.Client.Tests
 {
     [TestFixture]
-    internal class ResourceDataTests
+    internal class ResourcesDataTests
     {
         [Test]
         public void TestCreate()
@@ -18,15 +20,15 @@ namespace Homm.Client.Tests
             var resData2 = new ResourcesData(new Dictionary<Resource, int> {{Resource.Ebony, 5}, {Resource.Glass, 20}});
         }
 
-        private static void CreateWithNegativeAmount()
-        {
-            var resData1 = new ResourcesData(new Dictionary<Resource, int> {{Resource.Iron, -10}});
-        }
-
         [Test]
         public void TestInvalidResourceAmount()
         {
-            Assert.Catch(typeof(ArgumentException), CreateWithNegativeAmount);
+            Assert.Catch(typeof(ArgumentException), CreateDataWithNegatveAmount);
+        }
+
+        private static void CreateDataWithNegatveAmount()
+        {
+            var resData1 = new ResourcesData(new Dictionary<Resource, int> {{Resource.Iron, -10}});
         }
 
         [Test]
@@ -101,6 +103,17 @@ namespace Homm.Client.Tests
             Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Glass), 1e-5);
             Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Iron), 1e-5);
             Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Gold), 1e-5);
+        }
+
+        [Test]
+        public void TestParse()
+        {
+            var map = DummyLocationMap.GetExampleMap();
+            var info = DummyPlayerInfo.GetExampleInfo();
+            map.Map.Objects[1].ResourcePile = new ResourcePile(Resource.Gold, 10);
+            map.Map.Objects[2].Mine = new Mine(Resource.Iron, "OwnerDoesntMatter");
+            var data = Parse(info, map);
+            Assert.IsTrue(data.Total > 0);
         }
     }
 }

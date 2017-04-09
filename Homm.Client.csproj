@@ -63,10 +63,13 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DataHandler.cs" />
     <Compile Include="ILocationMapProvider.cs" />
+    <Compile Include="IPlayerInfoProvider.cs" />
+    <Compile Include="Tests\DummyLocationMap.cs" />
+    <Compile Include="Tests\DummySensorDataProvider.cs" />
     <Compile Include="Tests\EnemyArmyDataTests.cs" />
     <Compile Include="Tests\HireTests.cs" />
     <Compile Include="Tests\LocationHelperTests.cs" />
-    <Compile Include="Tests\ResourceDataTests.cs" />
+    <Compile Include="Tests\ResourcesDataTests.cs" />
     <Compile Include="Tests\DictExtTests.cs" />
     <Compile Include="HireHelper.cs" />
     <Compile Include="LocationHelper.cs" />

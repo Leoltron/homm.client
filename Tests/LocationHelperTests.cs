@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HoMM;
-using HoMM.ClientClasses;
 using NUnit.Framework;
+using static Homm.Client.Tests.DummyLocationMap;
 using Wall = HoMM.ClientClasses.Wall;
 
 namespace Homm.Client.Tests
@@ -15,40 +14,13 @@ namespace Homm.Client.Tests
         [Test]
         public void TestCreate()
         {
-            var helper = new LocationHelper(GetMap());
-        }
-
-        private static DummyMap GetMap()
-        {
-            var mapObjects = new List<MapObjectData>
-            {
-                new MapObjectData
-                {
-                    Location = new Location(0, 0)
-                        .NeighborAt(Direction.RightDown)
-                        .NeighborAt(Direction.Down)
-                        .ToLocationInfo()
-                }
-            };
-            foreach (var location in mapObjects[0].Location.ToLocation().Neighborhood)
-            {
-                mapObjects.Add(new MapObjectData {Location = location.ToLocationInfo()});
-            }
-            var mapData = new MapData
-            {
-                Objects = mapObjects,
-                Width = mapObjects.Max(m => m.Location.X) + 1,
-                Height = mapObjects.Max(m => m.Location.Y) + 1
-            };
-
-            var map = new DummyMap {Map = mapData, CurrentLocation = new Location(1, 1)};
-            return map;
+            var helper = new LocationHelper(GetExampleMap());
         }
 
         [Test]
         public void TestInsideMap()
         {
-            var map = GetMap();
+            var map = GetExampleMap();
             foreach (var mapObject in map.Map.Objects)
                 Assert.IsTrue(LocationHelper.IsInsideMap(mapObject.Location.ToLocation(), map.Map));
         }
@@ -56,7 +28,7 @@ namespace Homm.Client.Tests
         [Test]
         public void TestOutsideMap()
         {
-            var map = GetMap();
+            var map = GetExampleMap();
             Assert.IsFalse(LocationHelper.IsInsideMap(new Location(-1, 0), map.Map));
             Assert.IsFalse(LocationHelper.IsInsideMap(new Location(0, -1), map.Map));
             Assert.IsFalse(LocationHelper.IsInsideMap(new Location(-1, -1), map.Map));
@@ -74,16 +46,19 @@ namespace Homm.Client.Tests
         [Test]
         public void TestCanStandEmpty()
         {
-            var map = GetMap();
+            var map = GetExampleMap();
             foreach (var mapObject in map.Map.Objects)
                 Assert.IsTrue(LocationHelper.CanStandThere(mapObject.Location.ToLocation(), map.Map),
                     $"Can't stand in ({mapObject.Location.X},{mapObject.Location.Y})");
+
+            Assert.IsFalse(LocationHelper.CanStandThere(new Location(-1, -1), map.Map));
+            Assert.IsFalse(LocationHelper.CanStandThere(new Location(20, 20), map.Map));
         }
 
         [Test]
         public void TestAvailableDirections1()
         {
-            var map = GetMap();
+            var map = GetExampleMap();
             foreach (var mapObject in map.Map.Objects)
             {
                 if (!(mapObject.Location.X == 1 && mapObject.Location.Y == 1) &&
@@ -97,7 +72,7 @@ namespace Homm.Client.Tests
         [Test]
         public void TestAvailableDirections2()
         {
-            var map = GetMap();
+            var map = GetExampleMap();
             foreach (var mapObject in map.Map.Objects)
             {
                 if (!(mapObject.Location.X == 1 && mapObject.Location.Y == 1) &&
@@ -111,29 +86,13 @@ namespace Homm.Client.Tests
         [Test]
         public void TestObjectAt()
         {
-            var map = GetMap();
+            var map = GetExampleMap();
             var helper = new LocationHelper(map);
             var objects = map.Map.Objects.ToDictionary(obj => obj.Location.ToLocation());
             objects.Add(new Location(-1, -1), null);
             objects.Add(new Location(100, 100), null);
             foreach (var location in objects.Keys)
                 Assert.AreEqual(objects[location], helper.GetObjectAt(location));
-        }
-    }
-
-    internal class DummyMap : ILocationMapProvider
-    {
-        public MapData Map;
-        public Location CurrentLocation;
-
-        public MapData GetMap()
-        {
-            return Map;
-        }
-
-        public Location GetCurrentLocation()
-        {
-            return CurrentLocation;
         }
     }
 }
