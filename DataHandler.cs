@@ -1,9 +1,10 @@
-﻿using HoMM;
+﻿using System.Collections.Generic;
+using HoMM;
 using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    public class DataHandler : ILocationMapProvider
+    public class DataHandler : ILocationMapProvider, IPlayerInfoProvider
     {
         public HommSensorData CurrentData;
         private EnemyArmyData enemyArmyData;
@@ -17,8 +18,8 @@ namespace Homm.Client
         public void UpdateData(HommSensorData data)
         {
             CurrentData = data;
-            enemyArmyData = EnemyArmyData.Parse(CurrentData);
-            resourcesData = ResourcesData.Parse(CurrentData);
+            enemyArmyData = EnemyArmyData.Parse(this, this);
+            resourcesData = ResourcesData.Parse(this, this);
         }
 
         public double GetDegreeOfNeed(UnitType unitType)
@@ -50,6 +51,26 @@ namespace Homm.Client
         public Location GetCurrentLocation()
         {
             return CurrentData.Location.ToLocation();
+        }
+
+        public bool IsDead()
+        {
+            return CurrentData.IsDead;
+        }
+
+        public Dictionary<Resource, int> GetMyTreasury()
+        {
+            return CurrentData.MyTreasury;
+        }
+
+        public Dictionary<UnitType, int> GetMyArmy()
+        {
+            return CurrentData.MyArmy;
+        }
+
+        public string GetMyRespawnSide()
+        {
+            return CurrentData.MyRespawnSide;
         }
     }
 }

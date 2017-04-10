@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using HoMM;
+using HoMM.ClientClasses;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
+using Garrison = HoMM.ClientClasses.Garrison;
+using NeutralArmy = HoMM.ClientClasses.NeutralArmy;
 
 // ReSharper disable UnusedVariable
 
@@ -43,7 +45,7 @@ namespace Homm.Client.Tests
                 {UnitType.Infantry, 125},
                 {UnitType.Ranged, 300}
             });
-            Assert.AreEqual(500, armyData.amountOverall);
+            Assert.AreEqual(500, armyData.AmountOverall);
 
             armyData = new EnemyArmyData(new Dictionary<UnitType, int>
             {
@@ -52,7 +54,7 @@ namespace Homm.Client.Tests
                 {UnitType.Infantry, 11},
                 {UnitType.Ranged, 1205}
             });
-            Assert.AreEqual(1305, armyData.amountOverall);
+            Assert.AreEqual(1305, armyData.AmountOverall);
         }
 
         [Test]
@@ -105,6 +107,18 @@ namespace Homm.Client.Tests
             Assert.AreEqual(0, armyData.GetPart(UnitType.Cavalry), 1e-5);
             Assert.AreEqual(0, armyData.GetPart(UnitType.Infantry), 1e-5);
             Assert.AreEqual(0, armyData.GetPart(UnitType.Ranged), 1e-5);
+        }
+
+        [Test]
+        public void TestParse()
+        {
+            var map = DummyLocationMap.GetExampleMap();
+            var info = DummyPlayerInfo.GetExampleInfo();
+            map.Map.Objects[1].NeutralArmy = new NeutralArmy(new Dictionary<UnitType, int> {{UnitType.Ranged, 10}});
+            map.Map.Objects[2].Garrison = new Garrison("Enemy", new Dictionary<UnitType, int> {{UnitType.Ranged, 10}});
+            map.Map.Objects[3].Hero = new Hero("Enemy", new Dictionary<UnitType, int> {{UnitType.Ranged, 10}});
+            var data = EnemyArmyData.Parse(info, map);
+            Assert.IsTrue(data.AmountOverall > 0);
         }
     }
 }
