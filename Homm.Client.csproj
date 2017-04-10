@@ -58,7 +58,7 @@
   <ItemGroup>
     <Compile Include="AI.cs" />
     <Compile Include="BattleCalculator.cs" />
-    <Compile Include="Bridges.cs" />
+    <Compile Include="BridgeLocator.cs" />
     <Compile Include="CoefficientsCalculator.cs" />
     <Compile Include="CommandGenerator.cs" />
     <Compile Include="Constants.cs" />
@@ -79,7 +79,7 @@
     <Compile Include="EnemyArmyData.cs" />
     <Compile Include="Homm.Client.Program.cs" />
     <Compile Include="SimpleWeights.cs" />
-    <Compile Include="OutsideVisibility.cs" />
+    <Compile Include="WarFogMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourcesData.cs" />
   </ItemGroup>

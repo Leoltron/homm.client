@@ -47,12 +47,13 @@ namespace Homm.Client.Tests
         public void TestCanStandEmpty()
         {
             var map = GetExampleMap();
+            var locHelper = new LocationHelper(map);
             foreach (var mapObject in map.Map.Objects)
-                Assert.IsTrue(LocationHelper.CanStandThere(mapObject.Location.ToLocation(), map.Map),
+                Assert.IsTrue(locHelper.CanStandThere(mapObject.Location.ToLocation()),
                     $"Can't stand in ({mapObject.Location.X},{mapObject.Location.Y})");
 
-            Assert.IsFalse(LocationHelper.CanStandThere(new Location(-1, -1), map.Map));
-            Assert.IsFalse(LocationHelper.CanStandThere(new Location(20, 20), map.Map));
+            Assert.IsFalse(locHelper.CanStandThere(new Location(-1, -1)));
+            Assert.IsFalse(locHelper.CanStandThere(new Location(20, 20)));
         }
 
         [Test]

@@ -13,14 +13,13 @@ namespace Homm.Client
 
         public LocationWeightCalculator(AI ai, LocationHelper locHelper)
         {
-            simple = new SimpleWeights(ai, locHelper);
             this.locHelper = locHelper;
+            simple = new SimpleWeights(ai, locHelper);
         }
 
         public Dictionary<Location, double> GetSpreadWeights(MapData map)
         {
-            var visited = OutsideVisibility.RefreshVisited(map, locHelper);
-            var simpleWeights = simple.GetMapSimpleWeights(visited);
+            var simpleWeights = simple.GetMapSimpleWeights();
             var spreadWeights = simpleWeights.ToDictionary(pair => pair.Key, pair => 0d);
             return simpleWeights.Keys
                 .Aggregate(spreadWeights, (current, key) => 
@@ -63,7 +62,7 @@ namespace Homm.Client
         {
             return location.Neighborhood
                 .Where(neighb => !looked.Contains(neighb) &&
-                                 LocationHelper.CanStandThere(neighb, map));
+                                 locHelper.CanStandThere(neighb));
         }
     }
 }

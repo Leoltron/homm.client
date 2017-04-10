@@ -56,7 +56,7 @@ namespace Homm.Client
         private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
         {
             var maxs = firstLevel
-                .Where(pair => LocationHelper.CanStandThere(pair.Key, CurrentData.Map))
+                .Where(pair => locHelper.CanStandThere(pair.Key))
                 .OrderByDescending(pair => pair.Value)
                 .ToArray();
             var ourLocation = CurrentData.Location.ToLocation();
@@ -89,6 +89,7 @@ namespace Homm.Client
         private void OnDataUpdated(HommSensorData data)
         {
             DataHandler.UpdateData(data);
+            locHelper.UpdateData(DataHandler);
         }
 
         //вот тут их смотрю

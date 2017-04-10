@@ -10,16 +10,20 @@ namespace Homm.Client
     {
         private readonly CoefficientsCalculator coefsCalc;
         private readonly AI ai;
+        private readonly LocationHelper locHelper;
+        private readonly BridgeLocator bridgeLocator;
 
         public SimpleWeights(AI ai, LocationHelper locHelper)
         {
-            this.coefsCalc = new CoefficientsCalculator(ai);
+            coefsCalc = new CoefficientsCalculator(ai);
             this.ai = ai;
+            this.locHelper = locHelper;
+            bridgeLocator = new BridgeLocator(locHelper);
         }
 
-        public Dictionary<Location, double> GetMapSimpleWeights(Dictionary<Location, MapObjectData> visited)
+        public Dictionary<Location, double> GetMapSimpleWeights()
         {
-            return visited
+            return locHelper.GetMapObjects()
                 .Select(pair => new KeyValuePair<Location, double>(
                     pair.Key,
                     GetMapObjectWeight(pair.Value)))
@@ -42,7 +46,7 @@ namespace Homm.Client
                 weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
             }
             //... и тут видимо для каждого поля нужно так сделать(
-            if (Bridges.IsBridge(mapObject.Location.ToLocation()))
+            if (bridgeLocator.IsBridge(mapObject.Location.ToLocation()))
                 weight *= 5;
             return weight;
         }
