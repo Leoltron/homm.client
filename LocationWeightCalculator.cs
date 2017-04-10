@@ -33,8 +33,6 @@ namespace Homm.Client
             double weight,
             Dictionary<Location, double> spreadWeights)
         {
-            if (location.X == 4 && location.Y == 13)
-                ;
             if (weight < 0)
             {
                 spreadWeights[location] = weight;

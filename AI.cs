@@ -39,8 +39,6 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                if (CurrentData.Location.X == 8 && CurrentData.Location.Y == 7)
-                    ;
                 var suitableLocations = locWeightCalc.GetSpreadWeights(CurrentData.Map);
                 var firstLevel = GetFirstLevel(suitableLocations, CurrentData.Location.ToLocation());
                 Debug(suitableLocations); //смотрю коэффициенты на поле
