@@ -14,6 +14,7 @@ namespace Homm.Client
         public const double ArmyEfficencyCoefficent = 10 / 1e3;
         public const double OneScoreWeight = 85222.69299239293;
         public const double BattleCoefficient = 5682;
+        public const double DecreaseByLevel = 8;
 
         public static readonly Dictionary<UnitType, UnitType> UnitCounters = new Dictionary<UnitType, UnitType>
         {

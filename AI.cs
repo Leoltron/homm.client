@@ -39,16 +39,20 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var levelsLocations = NeighboursHelper.GroupByRange(CurrentData);
-                var levels = OutsideVisibility.Refresh(levelsLocations, locHelper);
-                Bridges.RefreshBridges(Bridges.ToGraph(levels, CurrentData.Map));
-                var suitableLocations = new Dictionary<Location, double>[levels.Length];
-                var lastLevel = levels.Length - 1;
-                for (var i = lastLevel; i > 0; i--)
-                    locWeightCalc.CalculateLevelWeights(suitableLocations, levels, i, lastLevel);
+                if (CurrentData.Location.X == 8 && CurrentData.Location.Y == 7)
+                    ;
+                var suitableLocations = locWeightCalc.GetSpreadWeights(CurrentData.Map);
+                var firstLevel = GetFirstLevel(suitableLocations, CurrentData.Location.ToLocation());
                 Debug(suitableLocations); //смотрю коэффициенты на поле
-                OnDataUpdated(client.Act(TakeMovementDecision(suitableLocations[1])));
+                OnDataUpdated(client.Act(TakeMovementDecision(firstLevel)));
             }
+        }
+
+        private Dictionary<Location, double> GetFirstLevel(Dictionary<Location, double> suitableLocations, Location ourLocation)
+        {
+            return ourLocation.Neighborhood
+                .Where(suitableLocations.ContainsKey)
+                .ToDictionary(location => location, location => suitableLocations[location]);
         }
 
         private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
@@ -90,20 +94,16 @@ namespace Homm.Client
         }
 
         //вот тут их смотрю
-        private void Debug(IEnumerable<Dictionary<Location, double>> weights)
+        private void Debug(Dictionary<Location, double> weights)
         {
             var width = CurrentData.Map.Width;
             var height = CurrentData.Map.Height;
-            var w = weights
-                .Skip(1)
-                .SelectMany(pair => pair)
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
             for (var i = 0; i < height; i++)
             {
                 for (var j = 0; j < width; j++)
                 {
                     var loc = new Location(i, j);
-                    Console.Write(w.ContainsKey(loc) ? $" {w[loc]:000.00}" : "   0   ");
+                    Console.Write(weights.ContainsKey(loc) ? $" {weights[loc]:000.00}" : "   0   ");
                 }
                 Console.WriteLine();
             }

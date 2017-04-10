@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
 
@@ -6,70 +8,64 @@ namespace Homm.Client
 {
     public class LocationWeightCalculator
     {
-        private readonly AI ai;
-        private readonly CoefficientsCalculator coefsCalc;
-        private readonly NeighboursHelper neighbsHelper;
+        private readonly SimpleWeights simple;
+        private readonly LocationHelper locHelper;
 
         public LocationWeightCalculator(AI ai, LocationHelper locHelper)
         {
-            this.ai = ai;
-            coefsCalc = new CoefficientsCalculator(ai);
-            neighbsHelper = new NeighboursHelper(locHelper);
+            simple = new SimpleWeights(ai, locHelper);
+            this.locHelper = locHelper;
         }
 
-        public void CalculateLevelWeights(
-            Dictionary<Location, double>[] suitableLocations,
-            Dictionary<Location, MapObjectData>[] levels,
-            int stage,
-            int lastStage)
+        public Dictionary<Location, double> GetSpreadWeights(MapData map)
         {
-            var level = levels[stage];
-            suitableLocations[stage] = GetBaseLevelCoefficients(level, stage);
-            if (stage != lastStage)
-                neighbsHelper.SpreadSmellFromPrevLevel(level, suitableLocations, ai.CurrentData.Map, stage);
-            suitableLocations[stage] = NeighboursHelper.SpreadSmellAlongLevel(suitableLocations[stage], ai.CurrentData.Map);
-
+            var visited = OutsideVisibility.RefreshVisited(map, locHelper);
+            var simpleWeights = simple.GetMapSimpleWeights(visited);
+            var spreadWeights = simpleWeights.ToDictionary(pair => pair.Key, pair => 0d);
+            return simpleWeights.Keys
+                .Aggregate(spreadWeights, (current, key) => 
+                    SpreadWeights(map, key, simpleWeights[key], current));
         }
 
-        private Dictionary<Location, double> GetBaseLevelCoefficients(Dictionary<Location, MapObjectData> level, int stage)
+        private Dictionary<Location, double> SpreadWeights(
+            MapData map,
+            Location location,
+            double weight,
+            Dictionary<Location, double> spreadWeights)
         {
-            var suitableLocations = new Dictionary<Location, double>();
-            foreach (var location in level.Keys)
+            if (location.X == 4 && location.Y == 13)
+                ;
+            if (weight < 0)
             {
-                var weight = level[location] != null ? GetMapObjectWeight(level[location]) : 0;
-                suitableLocations.Add(location, weight);
+                spreadWeights[location] = weight;
+                return spreadWeights;
             }
-            return suitableLocations;
-        }
-        
-        private double GetMapObjectWeight(MapObjectData mapObject)
-        {
-            var weight = 0d;
-            weight += coefsCalc.GetPileValue(mapObject.ResourcePile);
-            weight += coefsCalc.GetMineValue(mapObject.Mine, ai.CurrentData.MyRespawnSide);
-            weight += coefsCalc.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
-            weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
-            var enemyArmy = FindEnemyArmy(mapObject);
-            if (enemyArmy != null)
+            var queue = new Queue<Tuple<Location, int>>();
+            var looked = new HashSet<Location> {location};
+            queue.Enqueue(Tuple.Create(location, 0));
+            while (queue.Count != 0)
             {
-                var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
-                weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
+                var loc = queue.Peek().Item1;
+                var deep = queue.Dequeue().Item2;
+                var smell = weight / Math.Pow(Constants.DecreaseByLevel, deep);
+                
+                if (spreadWeights[loc] >= 0)
+                    spreadWeights[loc] += smell;
+                var neighbs = GetNeighbsNextLevel(loc, looked, map);
+                foreach (var neighb in neighbs)
+                {
+                    looked.Add(neighb);
+                    queue.Enqueue(Tuple.Create(neighb, deep + 1));
+                }
             }
-            //... и тут видимо для каждого поля нужно так сделать(
-            if (Bridges.IsBridge(mapObject.Location.ToLocation()))
-                weight *= 5;
-            return weight;
+            return spreadWeights;
         }
 
-        private Dictionary<UnitType, int> FindEnemyArmy(MapObjectData cell)
+        private IEnumerable<Location> GetNeighbsNextLevel(Location location, HashSet<Location> looked, MapData map)
         {
-            if (cell.NeutralArmy != null)
-                return cell.NeutralArmy.Army;
-            if (cell.Hero != null && cell.Hero.Name != ai.CurrentData.MyRespawnSide)
-                return cell.Hero.Army;
-            if (cell.Garrison != null && cell.Garrison.Owner != ai.CurrentData.MyRespawnSide) //TODO: Так какое же?
-                return cell.Garrison.Army;                                                    //Оп вот здесь кстати объяснение какого черта он на гарнизоны нападает) Как я понял это сторона с которой начинаем
-            return null;
+            return location.Neighborhood
+                .Where(neighb => !looked.Contains(neighb) &&
+                                 LocationHelper.CanStandThere(neighb, map));
         }
     }
 }

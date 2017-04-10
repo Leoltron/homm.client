@@ -12,33 +12,21 @@ namespace Homm.Client
     {
         private static readonly Dictionary<Location, MapObjectData> visited = new Dictionary<Location, MapObjectData>();
 
-        public static Dictionary<Location, MapObjectData>[] Refresh(List<Location>[] levels, LocationHelper locHelper)
-        {
-            RefreshVisited(levels, locHelper);
-            return levels
-                .Select(level => level
-                    .ToDictionary(location => location, ValueOrDefault))
-                .ToArray();
-        }
-
-        private static MapObjectData ValueOrDefault(Location location) => visited.ContainsKey(location) ? visited[location] : null;
-
         private static void AddOrRefresh(Location location, LocationHelper locHelper)
         {
             var mapObject = locHelper.GetObjectAt(location);
-            if (mapObject == null)
-                return;
             if (!visited.ContainsKey(location))
                 visited.Add(location, mapObject);
             else
-                visited[location] = mapObject;
+                visited[location] = mapObject ?? visited[location];
         }
 
-        private static void RefreshVisited(List<Location>[] levels, LocationHelper locHelper)
+        public static Dictionary<Location, MapObjectData> RefreshVisited(MapData map, LocationHelper locHelper)
         {
-            foreach (var level in levels)
-            foreach (var mapObject in level)
-                AddOrRefresh(mapObject, locHelper);
+            for (var i = 0; i < map.Width; i++)
+                for (var j = 0; j < map.Height; j++)
+                    AddOrRefresh(new Location(i, j), locHelper);
+            return visited;
         }
     }
 }
