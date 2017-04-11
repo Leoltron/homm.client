@@ -68,6 +68,7 @@
     <Compile Include="Tests\DummyLocationMap.cs" />
     <Compile Include="Tests\DummySensorDataProvider.cs" />
     <Compile Include="Tests\EnemyArmyDataTests.cs" />
+    <Compile Include="Tests\WarFogMapTests.cs" />
     <Compile Include="Tests\HireTests.cs" />
     <Compile Include="Tests\LocationHelperTests.cs" />
     <Compile Include="Tests\ResourcesDataTests.cs" />
