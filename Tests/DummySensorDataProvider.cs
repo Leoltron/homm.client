@@ -17,7 +17,10 @@ namespace Homm.Client.Tests
                 IsDead = false,
                 MyTreasury = new Dictionary<Resource, int>
                 {
-                    {Resource.Gold, 87}
+                    {Resource.Gold, 87},
+                    {Resource.Glass, 0},
+                    {Resource.Ebony, 0},
+                    {Resource.Iron, 0}
                 },
                 MyArmy = new Dictionary<UnitType, int>
                 {

@@ -4,7 +4,7 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    public class DataHandler : ILocationMapProvider, IPlayerInfoProvider
+    public class DataHandler : ILocationMapProvider, IPlayerInfoProvider, ITypesCoefficientsCalculator
     {
         public HommSensorData CurrentData;
         private EnemyArmyData enemyArmyData;
@@ -36,7 +36,7 @@ namespace Homm.Client
             return resourceType == Resource.Gold ? 2 * coeff : coeff;
         }
 
-        private double GetCounterMeetingPropability(UnitType type)
+        public double GetCounterMeetingPropability(UnitType type)
         {
             return type == UnitType.Militia
                 ? Constants.GoldMilitiaCounterConst

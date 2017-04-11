@@ -65,6 +65,8 @@
     <Compile Include="DataHandler.cs" />
     <Compile Include="ILocationMapProvider.cs" />
     <Compile Include="IPlayerInfoProvider.cs" />
+    <Compile Include="ITypesCoefficientsCalculator.cs" />
+    <Compile Include="Tests\BattleCalculatorTests.cs" />
     <Compile Include="Tests\DummyLocationMap.cs" />
     <Compile Include="Tests\DummySensorDataProvider.cs" />
     <Compile Include="Tests\EnemyArmyDataTests.cs" />

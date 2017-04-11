@@ -23,7 +23,7 @@ namespace Homm.Client
             this.client.OnSensorDataReceived += OnDataUpdated;
             locHelper = new LocationHelper(DataHandler);
             locWeightCalc = new LocationWeightCalculator(this, locHelper);
-            BattleCalc = new BattleCalculator(this);
+            BattleCalc = new BattleCalculator(DataHandler, DataHandler);
             while (!debugMode)
             {
                 NextMove();

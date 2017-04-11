@@ -8,21 +8,23 @@ namespace Homm.Client
 {
     public class BattleCalculator
     {
-        private readonly AI ai;
+        private readonly IPlayerInfoProvider playerInfo;
+        private readonly ITypesCoefficientsCalculator coeffsCalc;
 
-        public BattleCalculator(AI ai)
+        public BattleCalculator(IPlayerInfoProvider playerInfo, ITypesCoefficientsCalculator calc)
         {
-            this.ai = ai;
+            this.playerInfo = playerInfo;
+            coeffsCalc = calc;
         }
 
         public bool WouldWinAttackAgainst(Dictionary<UnitType, int> enemy)
         {
-            return Combat.Resolve(new ArmiesPair(ai.CurrentData.MyArmy, enemy)).IsAttackerWin;
+            return Combat.Resolve(new ArmiesPair(playerInfo.MyArmy, enemy)).IsAttackerWin;
         }
 
         public double GetProfitFromAttack(Dictionary<UnitType, int> enemyArmy)
         {
-            return GetBattleProfit(new ArmiesPair(ai.CurrentData.MyArmy, enemyArmy));
+            return GetBattleProfit(new ArmiesPair(playerInfo.MyArmy, enemyArmy));
         }
 
         private double GetBattleProfit(ArmiesPair initialState, bool isAttackerProfit = true)
@@ -30,19 +32,20 @@ namespace Homm.Client
             return GetBattleProfit(initialState, Combat.Resolve(initialState), isAttackerProfit);
         }
 
-        private double GetBattleProfit(ArmiesPair initialState, Combat.CombatResult result, bool isAttackerProfit = true)
+        private double GetBattleProfit(ArmiesPair initialState, Combat.CombatResult result,
+            bool isAttackerProfit = true)
         {
             if (!result.IsAttackerWin)
                 return -1;
             var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
             return
             (from type in unitTypes
-             let attackerLoss =
-             initialState.AttackingArmy.GetOrDefault(type) - result.AttackingArmy.GetOrDefault(type)
-             let defenderLoss =
-             initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
-             select defenderLoss * UnitsConstants.Current.Scores[type] -
-                   attackerLoss * ai.DataHandler.GetDegreeOfNeed(type)
+                let attackerLoss =
+                initialState.AttackingArmy.GetOrDefault(type) - result.AttackingArmy.GetOrDefault(type)
+                let defenderLoss =
+                initialState.DefendingArmy.GetOrDefault(type) - result.DefendingArmy.GetOrDefault(type)
+                select defenderLoss * UnitsConstants.Current.Scores[type] -
+                       attackerLoss * coeffsCalc.GetDegreeOfNeed(type)
             ).Sum();
         }
     }
