@@ -29,10 +29,10 @@ namespace Homm.Client
 
         private const double MineCoefficent = 1; //TODO: Настроить коэффицент
 
-        public static ResourcesData Parse(IPlayerInfoProvider playerInfo, ILocationMapProvider map)
+        public static ResourcesData Parse(IPlayerInfoProvider playerInfo, ILocationMapProvider mapProvider)
         {
             var resources = new Dictionary<Resource, int>();
-            foreach (var mapObject in map.GetMap().Objects)
+            foreach (var mapObject in mapProvider.Map.Objects)
             {
                 if (mapObject.ResourcePile != null)
                     resources.AddOrSum(mapObject.ResourcePile.Resource, mapObject.ResourcePile.Amount);
@@ -40,7 +40,7 @@ namespace Homm.Client
                     resources.AddOrSum(mapObject.Mine.Resource,
                         (int) (MineCoefficent * HommRules.Current.MineDailyResourceYield));
             }
-            foreach (var resource in playerInfo.GetMyTreasury())
+            foreach (var resource in playerInfo.MyTreasury)
                 resources.AddOrSum(resource);
             return new ResourcesData(resources);
         }

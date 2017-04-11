@@ -28,15 +28,15 @@ namespace Homm.Client
         public static EnemyArmyData Parse(IPlayerInfoProvider playerInfo, ILocationMapProvider data)
         {
             var enemyUnitsData = new Dictionary<UnitType, int>();
-            foreach (var mapObject in data.GetMap().Objects)
+            foreach (var mapObject in data.Map.Objects)
             {
                 if (mapObject.NeutralArmy != null)
                     foreach (var army in mapObject.NeutralArmy.Army)
                         enemyUnitsData.AddOrSum(army);
-                else if (mapObject.Garrison != null && mapObject.Garrison.Owner != playerInfo.GetMyRespawnSide())
+                else if (mapObject.Garrison != null && mapObject.Garrison.Owner != playerInfo.MyRespawnSide)
                     foreach (var army in mapObject.Garrison.Army)
                         enemyUnitsData.AddOrSum(army);
-                else if (mapObject.Hero != null && mapObject.Hero.Name != playerInfo.GetMyRespawnSide())
+                else if (mapObject.Hero != null && mapObject.Hero.Name != playerInfo.MyRespawnSide)
                     foreach (var army in mapObject.Hero.Army)
                         enemyUnitsData.AddOrSum(army);
             }

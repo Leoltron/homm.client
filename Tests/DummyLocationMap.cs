@@ -7,18 +7,9 @@ namespace Homm.Client.Tests
 {
     internal class DummyLocationMap : ILocationMapProvider
     {
-        public MapData Map;
-        public Location CurrentLocation;
-
-        public MapData GetMap()
-        {
-            return Map;
-        }
-
-        public Location GetCurrentLocation()
-        {
-            return CurrentLocation;
-        }
+        public Location CurrentLocation { get; private set; }
+        public MapData Map { get; private set; }
+        
 
         public static DummyLocationMap GetExampleMap()
         {

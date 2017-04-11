@@ -5,7 +5,7 @@ namespace Homm.Client
 {
     public interface ILocationMapProvider
     {
-        MapData GetMap();
-        Location GetCurrentLocation();
+        MapData Map { get; }
+        Location CurrentLocation { get; }
     }
 }

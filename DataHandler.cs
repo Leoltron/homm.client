@@ -43,34 +43,16 @@ namespace Homm.Client
                 : enemyArmyData.GetPart(Constants.UnitCounters[type]);
         }
 
-        public MapData GetMap()
-        {
-            return CurrentData.Map;
-        }
+        public MapData Map => CurrentData.Map;
 
-        public Location GetCurrentLocation()
-        {
-            return CurrentData.Location.ToLocation();
-        }
+        public Location CurrentLocation => CurrentData.Location.ToLocation();
 
-        public bool IsDead()
-        {
-            return CurrentData.IsDead;
-        }
+        public bool IsDead => CurrentData.IsDead;
 
-        public Dictionary<Resource, int> GetMyTreasury()
-        {
-            return CurrentData.MyTreasury;
-        }
+        public Dictionary<Resource, int> MyTreasury => CurrentData.MyTreasury;
 
-        public Dictionary<UnitType, int> GetMyArmy()
-        {
-            return CurrentData.MyArmy;
-        }
+        public Dictionary<UnitType, int> MyArmy => CurrentData.MyArmy;
 
-        public string GetMyRespawnSide()
-        {
-            return CurrentData.MyRespawnSide;
-        }
+        public string MyRespawnSide => CurrentData.MyRespawnSide;
     }
 }

@@ -21,7 +21,7 @@ namespace Homm.Client
 
         public bool CanStandThere(Location location)
         {
-            if (!IsInsideMap(location, mapProvider.GetMap()))
+            if (!IsInsideMap(location, mapProvider.Map))
                 return false;
             var obj = map[location];
             return obj != null && obj.Wall == null;
@@ -29,7 +29,7 @@ namespace Homm.Client
 
         public Direction GetFirstAvailableDirection()
         {
-            var curLocation = mapProvider.GetCurrentLocation();
+            var curLocation = mapProvider.CurrentLocation;
             return Constants.Directions.FirstOrDefault(
                 direction => CanStandThere(curLocation.NeighborAt(direction)));
         }

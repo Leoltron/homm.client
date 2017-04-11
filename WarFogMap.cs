@@ -16,7 +16,7 @@ namespace Homm.Client
 
         public void UpdateMap(ILocationMapProvider map)
         {
-            foreach (var mapObjectData in map.GetMap().Objects)
+            foreach (var mapObjectData in map.Map.Objects)
                 Map[mapObjectData.Location.ToLocation()] = mapObjectData;
         }
     }

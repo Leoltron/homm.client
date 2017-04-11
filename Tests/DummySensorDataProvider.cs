@@ -5,36 +5,16 @@ namespace Homm.Client.Tests
 {
     internal class DummyPlayerInfo : IPlayerInfoProvider
     {
-        public bool IsPlayerDead;
-        public Dictionary<Resource, int> MyTreasury;
-        public Dictionary<UnitType, int> MyArmy;
-        public string MyRespawnSide;
-
-        public bool IsDead()
-        {
-            return IsPlayerDead;
-        }
-
-        public Dictionary<Resource, int> GetMyTreasury()
-        {
-            return MyTreasury;
-        }
-
-        public Dictionary<UnitType, int> GetMyArmy()
-        {
-            return MyArmy;
-        }
-
-        public string GetMyRespawnSide()
-        {
-            return MyRespawnSide;
-        }
+        public bool IsDead { get; private set; }
+        public Dictionary<Resource, int> MyTreasury { get; private set; }
+        public Dictionary<UnitType, int> MyArmy { get; private set; }
+        public string MyRespawnSide { get; private set; }
 
         public static DummyPlayerInfo GetExampleInfo()
         {
             return new DummyPlayerInfo
             {
-                IsPlayerDead = false,
+                IsDead = false,
                 MyTreasury = new Dictionary<Resource, int>
                 {
                     {Resource.Gold, 87}

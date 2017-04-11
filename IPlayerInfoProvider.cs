@@ -5,9 +5,9 @@ namespace Homm.Client
 {
     public interface IPlayerInfoProvider
     {
-        bool IsDead();
-        Dictionary<Resource, int> GetMyTreasury();
-        Dictionary<UnitType, int> GetMyArmy();
-        string GetMyRespawnSide();
+        bool IsDead { get; }
+        Dictionary<Resource, int> MyTreasury { get; }
+        Dictionary<UnitType, int> MyArmy { get; }
+        string MyRespawnSide { get; }
     }
 }
