@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HoMM;
+using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
@@ -67,7 +68,7 @@ namespace Homm.Client
                                  simpleWeights[neighb] >= 0);
         }
 
-        private void AddEmptyWeights(MapData map, Dictionary<Location, double> simpleWeights)
+        private static void AddEmptyWeights(MapData map, Dictionary<Location, double> simpleWeights)
         {
             for (var i = 0; i < map.Height; i++)
                 for (var j = 0; j < map.Width; j++)

@@ -44,7 +44,7 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var suitableLocations = locWeightCalc.GetSpreadedWeights();
+                var suitableLocations = locWeightCalc.GetSpreadWeights(CurrentData.Map);
                 var firstLevel = GetFirstLayer(suitableLocations);
                 Debug(suitableLocations); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(firstLevel)));
