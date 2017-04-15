@@ -49,5 +49,6 @@ namespace Homm.Client
         };
 
         public static readonly Direction[] Directions = Enum.GetValues(typeof(Direction)).Cast<Direction>().ToArray();
+        public static readonly UnitType[] UnitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>().ToArray();
     }
 }

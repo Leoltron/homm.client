@@ -35,7 +35,7 @@ namespace Homm.Client
         private double GetBattleProfit(ArmiesPair initialState, Combat.CombatResult result,
             bool isAttackerProfit = true)
         {
-            if (!result.IsAttackerWin)
+            if (result.IsDefenderWin)
                 return -1;
             var unitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>();
             return

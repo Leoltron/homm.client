@@ -35,54 +35,40 @@ namespace Homm.Client.Tests
             Assert.Catch(typeof(ArgumentException), CreateWithNegativeAmount);
         }
 
-        [Test]
-        public void TestTotal()
+        [TestCase(25, 50, 125, 300)]
+        [TestCase(0, 89, 11, 1205)]
+        [TestCase(0, 0, 0, 0)]
+        public void TestAmountOverall(int militiaAmount, int cavalryAmount, int infantryAmount, int rangedAmount)
         {
             var armyData = new EnemyArmyData(new Dictionary<UnitType, int>
             {
-                {UnitType.Militia, 25},
-                {UnitType.Cavalry, 50},
-                {UnitType.Infantry, 125},
-                {UnitType.Ranged, 300}
+                {UnitType.Militia, militiaAmount},
+                {UnitType.Cavalry, cavalryAmount},
+                {UnitType.Infantry, infantryAmount},
+                {UnitType.Ranged, rangedAmount}
             });
-            Assert.AreEqual(500, armyData.AmountOverall);
-
-            armyData = new EnemyArmyData(new Dictionary<UnitType, int>
-            {
-                {UnitType.Militia, 0},
-                {UnitType.Cavalry, 89},
-                {UnitType.Infantry, 11},
-                {UnitType.Ranged, 1205}
-            });
-            Assert.AreEqual(1305, armyData.AmountOverall);
+            Assert.AreEqual(militiaAmount + cavalryAmount + infantryAmount + rangedAmount, armyData.AmountOverall);
         }
 
-        [Test]
-        public void TestPart()
+        [TestCase(25, 50, 125, 300,
+            0.05, 0.1, 0.25, 0.6)]
+        [TestCase(0,89,11,1205,
+            0,0.06819,0.00842,0.92337)]
+        public void TestPart(
+            int militiaAmount, int cavalryAmount, int infantryAmount, int rangedAmount,
+            double militiaPart, double cavalryPart, double infantryPart, double rangedPart)
         {
             var armyData = new EnemyArmyData(new Dictionary<UnitType, int>
             {
-                {UnitType.Militia, 25},
-                {UnitType.Cavalry, 50},
-                {UnitType.Infantry, 125},
-                {UnitType.Ranged, 300}
+                {UnitType.Militia, militiaAmount},
+                {UnitType.Cavalry, cavalryAmount},
+                {UnitType.Infantry, infantryAmount},
+                {UnitType.Ranged, rangedAmount}
             });
-            Assert.AreEqual(0.05, armyData.GetPart(UnitType.Militia), 1e-5);
-            Assert.AreEqual(0.1, armyData.GetPart(UnitType.Cavalry), 1e-5);
-            Assert.AreEqual(0.25, armyData.GetPart(UnitType.Infantry), 1e-5);
-            Assert.AreEqual(0.6, armyData.GetPart(UnitType.Ranged), 1e-5);
-
-            armyData = new EnemyArmyData(new Dictionary<UnitType, int>
-            {
-                {UnitType.Militia, 0},
-                {UnitType.Cavalry, 89},
-                {UnitType.Infantry, 11},
-                {UnitType.Ranged, 1205}
-            });
-            Assert.AreEqual(0, armyData.GetPart(UnitType.Militia), 1e-5);
-            Assert.AreEqual(0.06819, armyData.GetPart(UnitType.Cavalry), 1e-5);
-            Assert.AreEqual(0.00842, armyData.GetPart(UnitType.Infantry), 1e-5);
-            Assert.AreEqual(0.92337, armyData.GetPart(UnitType.Ranged), 1e-5);
+            Assert.AreEqual(militiaPart, armyData.GetPart(UnitType.Militia), 1e-5);
+            Assert.AreEqual(cavalryPart, armyData.GetPart(UnitType.Cavalry), 1e-5);
+            Assert.AreEqual(infantryPart, armyData.GetPart(UnitType.Infantry), 1e-5);
+            Assert.AreEqual(rangedPart, armyData.GetPart(UnitType.Ranged), 1e-5);
         }
 
         [Test]

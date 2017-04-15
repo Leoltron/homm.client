@@ -57,5 +57,6 @@ namespace Homm.Client
                 return cell.Garrison.Army;
             return null;
         }
+        
     }
 }
