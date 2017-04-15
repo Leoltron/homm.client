@@ -31,54 +31,39 @@ namespace Homm.Client.Tests
             var resData1 = new ResourcesData(new Dictionary<Resource, int> {{Resource.Iron, -10}});
         }
 
-        [Test]
-        public void TestTotal()
+        [TestCase(5, 20, 10, 100)]
+        [TestCase(250, 0, 0, 100)]
+        public void TestTotal(int ebonyAmount, int glassAmount, int ironAmount, int goldAmount)
         {
             var resData = new ResourcesData(new Dictionary<Resource, int>
             {
-                {Resource.Ebony, 5},
-                {Resource.Glass, 20},
-                {Resource.Iron, 10},
-                {Resource.Gold, 100}
+                {Resource.Ebony, ebonyAmount},
+                {Resource.Glass, glassAmount},
+                {Resource.Iron, ironAmount},
+                {Resource.Gold, goldAmount}
             });
-            Assert.AreEqual(135, resData.Total);
-
-            resData = new ResourcesData(new Dictionary<Resource, int>
-            {
-                {Resource.Ebony, 250},
-                {Resource.Glass, 0},
-                {Resource.Iron, 0},
-                {Resource.Gold, 100}
-            });
-            Assert.AreEqual(350, resData.Total);
+            Assert.AreEqual(ebonyAmount + glassAmount + ironAmount + goldAmount, resData.Total);
         }
 
-        [Test]
-        public void TestRarity()
+        [TestCase(5, 20, 10, 100,
+            27,6.75,13.5,1.35)]
+        [TestCase(250, 0, 0, 100,
+            1.4,MaxRarity,MaxRarity,3.5)]
+        public void TestRarity(
+            int ebonyAmount, int glassAmount, int ironAmount, int goldAmount,
+            double ebonyRarity, double glassRarity, double ironRarity, double goldRarity)
         {
             var resData = new ResourcesData(new Dictionary<Resource, int>
             {
-                {Resource.Ebony, 5},
-                {Resource.Glass, 20},
-                {Resource.Iron, 10},
-                {Resource.Gold, 100}
+                {Resource.Ebony, ebonyAmount},
+                {Resource.Glass, glassAmount},
+                {Resource.Iron, ironAmount},
+                {Resource.Gold, goldAmount}
             });
-            Assert.AreEqual(27, resData.GetRarity(Resource.Ebony), 1e-5);
-            Assert.AreEqual(6.75, resData.GetRarity(Resource.Glass), 1e-5);
-            Assert.AreEqual(13.5, resData.GetRarity(Resource.Iron), 1e-5);
-            Assert.AreEqual(1.35, resData.GetRarity(Resource.Gold), 1e-5);
-
-            resData = new ResourcesData(new Dictionary<Resource, int>
-            {
-                {Resource.Ebony, 250},
-                {Resource.Glass, 0},
-                {Resource.Iron, 0},
-                {Resource.Gold, 100}
-            });
-            Assert.AreEqual(1.4, resData.GetRarity(Resource.Ebony), 1e-5);
-            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Glass), 1e-5);
-            Assert.AreEqual(MaxRarity, resData.GetRarity(Resource.Iron), 1e-5);
-            Assert.AreEqual(3.5, resData.GetRarity(Resource.Gold), 1e-5);
+            Assert.AreEqual(ebonyRarity, resData.GetRarity(Resource.Ebony), 1e-5);
+            Assert.AreEqual(glassRarity, resData.GetRarity(Resource.Glass), 1e-5);
+            Assert.AreEqual(ironRarity, resData.GetRarity(Resource.Iron), 1e-5);
+            Assert.AreEqual(goldRarity, resData.GetRarity(Resource.Gold), 1e-5);
         }
 
         [Test]

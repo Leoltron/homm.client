@@ -44,7 +44,7 @@ namespace Homm.Client.Tests
         {
             var map = GetExampleMap();
             var locHelper = new LocationHelper(map);
-            foreach (var mapObject in map.Map.Objects)
+            foreach (var mapObject in locHelper.GetMapObjects().Values)
                 Assert.IsTrue(locHelper.CanStandThere(mapObject.Location.ToLocation()),
                     $"Can't stand in ({mapObject.Location.X},{mapObject.Location.Y})");
         }
