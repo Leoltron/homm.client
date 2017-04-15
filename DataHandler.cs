@@ -29,7 +29,6 @@ namespace Homm.Client
 
         public double GetDegreeOfNeed(Resource resourceType)
         {
-            //TODO: Вынести в переменную, чтобы считалась лишь раз между двумя обновлениями данных?
             var coeff = GetCounterMeetingPropability(Constants.ResourceToUnit[resourceType]) *
                    Constants.ArmyEfficencyCoefficent
                    + resourcesData.GetRarity(resourceType) * Constants.ResourceRarityCoefficent;

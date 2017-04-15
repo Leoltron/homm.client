@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
@@ -21,6 +20,7 @@ namespace Homm.Client
             QueryTime = queryTime;
         }
     }
+
     public class BridgeLocator
     {
         private readonly HashSet<Location> bridgesNodes = new HashSet<Location>();

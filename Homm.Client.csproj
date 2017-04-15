@@ -67,8 +67,10 @@
     <Compile Include="IPlayerInfoProvider.cs" />
     <Compile Include="ITypesCoefficientsCalculator.cs" />
     <Compile Include="Tests\BattleCalculatorTests.cs" />
+    <Compile Include="Tests\CommandGeneratorTests.cs" />
+    <Compile Include="Tests\DataHandlerTests.cs" />
     <Compile Include="Tests\DummyLocationMap.cs" />
-    <Compile Include="Tests\DummySensorDataProvider.cs" />
+    <Compile Include="Tests\DummyPlayerInfo.cs" />
     <Compile Include="Tests\EnemyArmyDataTests.cs" />
     <Compile Include="Tests\WarFogMapTests.cs" />
     <Compile Include="Tests\HireHelperTests.cs" />
