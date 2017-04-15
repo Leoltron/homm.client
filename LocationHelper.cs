@@ -24,7 +24,7 @@ namespace Homm.Client
             if (!IsInsideMap(location, mapProvider.Map))
                 return false;
             var obj = map[location];
-            return obj == null || obj.Wall != null;
+            return obj?.Wall == null;
         }
 
         public Direction GetFirstAvailableDirection()
