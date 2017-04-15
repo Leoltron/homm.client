@@ -43,29 +43,17 @@ namespace Homm.Client.Tests
             getDefaultBattleCalculator();
         }
 
-        [Test]
-        public void TestWinAgainstNoone()
+        [TestCase(0,ExpectedResult = true)]
+        [TestCase(1,ExpectedResult = true)]
+        [TestCase(1000,ExpectedResult = false)]
+        public bool WinAgainst(int enemyUnitsAmount)
         {
             var battlehelper = getDefaultBattleCalculator();
-            Assert.IsTrue(battlehelper.WouldWinAttackAgainst(GetRandomArmy(0)));
+            return battlehelper.WouldWinAttackAgainst(GetRandomArmy(enemyUnitsAmount));
         }
 
         [Test]
-        public void TestWinAgainstOne()
-        {
-            var battlehelper = getDefaultBattleCalculator();
-            Assert.IsTrue(battlehelper.WouldWinAttackAgainst(GetRandomArmy(1)));
-        }
-
-        [Test]
-        public void TestLoseAgainstHorde()
-        {
-            var battlehelper = getDefaultBattleCalculator();
-            Assert.IsFalse(battlehelper.WouldWinAttackAgainst(GetRandomArmy(1000)));
-        }
-
-        [Test]
-        public void TestProfitAgainstNoone()
+        public void TestNoProfitAgainstNoone()
         {
             var battlehelper = getDefaultBattleCalculator();
             var profit = battlehelper.GetProfitFromAttack(GetRandomArmy(0));
@@ -81,7 +69,7 @@ namespace Homm.Client.Tests
         }
 
         [Test]
-        public void TestProfitAgainstHorde()
+        public void TestNoProfitAgainstHorde()
         {
             var battlehelper = getDefaultBattleCalculator();
             var profit = battlehelper.GetProfitFromAttack(GetRandomArmy(1000));
