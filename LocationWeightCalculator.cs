@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using HoMM;
-using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
@@ -17,25 +16,24 @@ namespace Homm.Client
             simple = new SimpleWeights(ai, locHelper);
         }
 
-        public Dictionary<Location, double> GetSpreadWeights(MapData map)
+        public Dictionary<Location, double> GetSpreadedWeights()
         {
             var simpleWeights = simple.GetMapSimpleWeights();
-            var spreadWeights = simpleWeights.ToDictionary(pair => pair.Key, pair => 0d);
+            var spreadedWeights = simpleWeights.ToDictionary(pair => pair.Key, pair => 0d);
             return simpleWeights.Keys
-                .Aggregate(spreadWeights, (current, key) => 
-                    SpreadWeights(map, key, simpleWeights[key], current));
+                .Aggregate(spreadedWeights, (currentWeight, location) => 
+                    SpreadWeights(location, simpleWeights[location], currentWeight));
         }
 
         private Dictionary<Location, double> SpreadWeights(
-            MapData map,
             Location location,
             double weight,
-            Dictionary<Location, double> spreadWeights)
+            Dictionary<Location, double> spreadedWeights)
         {
             if (weight < 0)
             {
-                spreadWeights[location] = weight;
-                return spreadWeights;
+                spreadedWeights[location] = weight;
+                return spreadedWeights;
             }
             var queue = new Queue<Tuple<Location, int>>();
             var looked = new HashSet<Location> {location};
@@ -46,23 +44,22 @@ namespace Homm.Client
                 var deep = queue.Dequeue().Item2;
                 var smell = weight / Math.Pow(Constants.DecreaseByLevel, deep);
                 
-                if (spreadWeights[loc] >= 0)
-                    spreadWeights[loc] += smell;
-                var neighbs = GetNeighbsNextLevel(loc, looked, map);
+                if (spreadedWeights[loc] >= 0)
+                    spreadedWeights[loc] += smell;
+                var neighbs = GetNeighbsNextLevel(loc, looked);
                 foreach (var neighb in neighbs)
                 {
                     looked.Add(neighb);
                     queue.Enqueue(Tuple.Create(neighb, deep + 1));
                 }
             }
-            return spreadWeights;
+            return spreadedWeights;
         }
 
-        private IEnumerable<Location> GetNeighbsNextLevel(Location location, HashSet<Location> looked, MapData map)
+        private IEnumerable<Location> GetNeighbsNextLevel(Location location, ICollection<Location> looked)
         {
             return location.Neighborhood
-                .Where(neighb => !looked.Contains(neighb) &&
-                                 locHelper.CanStandThere(neighb));
+                .Where(neighb => !looked.Contains(neighb) && locHelper.CanStandThere(neighb));
         }
     }
 }

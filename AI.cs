@@ -44,18 +44,17 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var suitableLocations = locWeightCalc.GetSpreadWeights(CurrentData.Map);
-                var firstLevel = GetFirstLayer(suitableLocations, CurrentData.Location.ToLocation());
+                var suitableLocations = locWeightCalc.GetSpreadedWeights();
+                var firstLevel = GetFirstLayer(suitableLocations);
                 Debug(suitableLocations); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(firstLevel)));
             }
         }
 
-        private static Dictionary<Location, double> GetFirstLayer(
-            Dictionary<Location, double> suitableLocations,
-            Location ourLocation)
+        private Dictionary<Location, double> GetFirstLayer(
+            Dictionary<Location, double> suitableLocations)
         {
-            return ourLocation.Neighborhood
+            return CurrentData.Location.ToLocation().Neighborhood
                 .Where(suitableLocations.ContainsKey)
                 .ToDictionary(location => location, location => suitableLocations[location]);
         }

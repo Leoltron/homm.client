@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HoMM;
 using HoMM.ClientClasses;
@@ -24,21 +23,18 @@ namespace Homm.Client
         public Dictionary<Location, double> GetMapSimpleWeights()
         {
             return locHelper.GetMapObjects()
-                .Select(pair => new KeyValuePair<Location, double>(
-                    pair.Key,
-                    GetMapObjectWeight(pair.Value)))
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
+                .ToDictionary(pair => pair.Key, pair => GetMapObjectOwnWeight(pair.Value));
         }
 
-        private double GetMapObjectWeight(MapObjectData mapObject)
+        private double GetMapObjectOwnWeight(MapObjectData mapObject)
         {
             if (mapObject == null)
                 return 0;
             var weight = 0d;
-            weight += coefsCalc.GetPileValue(mapObject.ResourcePile);
-            weight += coefsCalc.GetMineValue(mapObject.Mine, ai.CurrentData.MyRespawnSide);
-            weight += coefsCalc.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
-            weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
+            weight += coefsCalc.GetPileCoefficient(mapObject.ResourcePile);
+            weight += coefsCalc.GetMineCoefficient(mapObject.Mine, ai.CurrentData.MyRespawnSide);
+            weight += coefsCalc.GetDwellingCoefficient(mapObject.Dwelling);
+            weight += CoefficientsCalculator.GetTerrainCoefficient(mapObject.Terrain);
             var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
