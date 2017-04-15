@@ -39,6 +39,8 @@ namespace Homm.Client
             weight += coefsCalc.GetMineValue(mapObject.Mine, ai.CurrentData.MyRespawnSide);
             weight += coefsCalc.GetDwellingValue(mapObject.Dwelling, ai.CurrentData.MyRespawnSide);
             weight += CoefficientsCalculator.GetTerrainValue(mapObject.Terrain);
+            if (mapObject.Location.X == 5 && mapObject.Location.Y == 11)
+                ;
             var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
@@ -61,5 +63,6 @@ namespace Homm.Client
                 return cell.Garrison.Army;
             return null;
         }
+        
     }
 }
