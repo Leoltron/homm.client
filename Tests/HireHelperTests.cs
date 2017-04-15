@@ -7,7 +7,7 @@ using Dwelling = HoMM.ClientClasses.Dwelling;
 namespace Homm.Client.Tests
 {
     [TestFixture]
-    class HireTests
+    internal class HireHelperTests
     {
         [Test]
         public void TestHire()

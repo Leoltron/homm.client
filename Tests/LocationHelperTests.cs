@@ -18,70 +18,67 @@ namespace Homm.Client.Tests
         }
 
         [Test]
-        public void TestInsideMap()
+        public void TestIsMapObjectInsideMap()
         {
             var map = GetExampleMap();
             foreach (var mapObject in map.Map.Objects)
                 Assert.IsTrue(LocationHelper.IsInsideMap(mapObject.Location.ToLocation(), map.Map));
         }
 
-        [Test]
-        public void TestOutsideMap()
+        [TestCase(-1, 0, ExpectedResult = false)]
+        [TestCase(0, -1, ExpectedResult = false)]
+        [TestCase(-1, -1, ExpectedResult = false)]
+        [TestCase(3, 0, ExpectedResult = false)]
+        [TestCase(0, 3, ExpectedResult = false)]
+        [TestCase(3, 3, ExpectedResult = false)]
+        [TestCase(100, 0, ExpectedResult = false)]
+        [TestCase(0, 100, ExpectedResult = false)]
+        [TestCase(100, 100, ExpectedResult = false)]
+        public bool IsInsideMap(int x, int y)
         {
-            var map = GetExampleMap();
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(-1, 0), map.Map));
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(0, -1), map.Map));
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(-1, -1), map.Map));
-
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(3, 0), map.Map));
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(0, 3), map.Map));
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(3, 3), map.Map));
-
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(100, 0), map.Map));
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(0, 100), map.Map));
-            Assert.IsFalse(LocationHelper.IsInsideMap(new Location(100, 100), map.Map));
+            return LocationHelper.IsInsideMap(new Location(x, y), GetExampleMap().Map);
         }
 
-
         [Test]
-        public void TestCanStandEmpty()
+        public void TestCanStandInMapObjects()
         {
             var map = GetExampleMap();
             var locHelper = new LocationHelper(map);
             foreach (var mapObject in map.Map.Objects)
                 Assert.IsTrue(locHelper.CanStandThere(mapObject.Location.ToLocation()),
                     $"Can't stand in ({mapObject.Location.X},{mapObject.Location.Y})");
+        }
 
+        [Test]
+        public void CanStandOutside()
+        {
+            var locHelper = new LocationHelper(GetExampleMap());
             Assert.IsFalse(locHelper.CanStandThere(new Location(-1, -1)));
             Assert.IsFalse(locHelper.CanStandThere(new Location(20, 20)));
         }
 
-        [Test]
-        public void TestAvailableDirections1()
+        [TestCase(Direction.Up)]
+        [TestCase(Direction.RightUp)]
+        [TestCase(Direction.LeftUp)]
+        [TestCase(Direction.Down)]
+        [TestCase(Direction.RightDown)]
+        [TestCase(Direction.LeftDown)]
+        public void TestGoThroughWallCircleWithHole(Direction holeDirection)
         {
             var map = GetExampleMap();
-            foreach (var mapObject in map.Map.Objects)
+            foreach (var direction in Constants.Directions)
             {
-                if (!(mapObject.Location.X == 1 && mapObject.Location.Y == 1) &&
-                    !(mapObject.Location.X == 1 && mapObject.Location.Y == 0))
+                if (direction == holeDirection) continue;
+                var neighbourLoc = map.CurrentLocation.NeighborAt(direction);
+                foreach (var mapObject in map.Map.Objects)
+                {
+                    if (mapObject.Location.ToLocation() != neighbourLoc) continue;
                     mapObject.Wall = new Wall();
+                    break;
+                }
             }
-            var helper = new LocationHelper(map);
-            Assert.AreEqual(Direction.Up, helper.GetFirstAvailableDirection());
-        }
-
-        [Test]
-        public void TestAvailableDirections2()
-        {
-            var map = GetExampleMap();
-            foreach (var mapObject in map.Map.Objects)
-            {
-                if (!(mapObject.Location.X == 1 && mapObject.Location.Y == 1) &&
-                    !(mapObject.Location.X == 2 && mapObject.Location.Y == 1))
-                    mapObject.Wall = new Wall();
-            }
-            var helper = new LocationHelper(map);
-            Assert.AreEqual(Direction.RightUp, helper.GetFirstAvailableDirection());
+            var locHelper = new LocationHelper(map);
+            Assert.AreEqual(holeDirection,locHelper.GetFirstAvailableDirection());
         }
 
         [Test]

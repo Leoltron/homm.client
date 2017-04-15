@@ -7,6 +7,7 @@ using HoMM.Robot;
 
 namespace Homm.Client
 {
+    // ReSharper disable once InconsistentNaming
     public class AI
     {
         private readonly HommClient client;
@@ -16,15 +17,19 @@ namespace Homm.Client
         private readonly LocationHelper locHelper;
         public readonly DataHandler DataHandler;
 
-        public AI(HommClient client, HommSensorData initialData, bool debugMode = false)
+        public AI(HommClient client, HommSensorData initialData)
         {
             this.client = client;
-            DataHandler= new DataHandler(initialData);
+            DataHandler = new DataHandler(initialData);
             this.client.OnSensorDataReceived += OnDataUpdated;
             locHelper = new LocationHelper(DataHandler);
             locWeightCalc = new LocationWeightCalculator(this, locHelper);
             BattleCalc = new BattleCalculator(DataHandler, DataHandler);
-            while (!debugMode)
+        }
+
+        public void Run()
+        {
+            while (true)
             {
                 NextMove();
             }
@@ -40,38 +45,38 @@ namespace Homm.Client
             {
                 TryHire();
                 var suitableLocations = locWeightCalc.GetSpreadWeights(CurrentData.Map);
-                var firstLevel = GetFirstLevel(suitableLocations, CurrentData.Location.ToLocation());
+                var firstLevel = GetFirstLayer(suitableLocations, CurrentData.Location.ToLocation());
                 Debug(suitableLocations); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(firstLevel)));
             }
         }
 
-        private Dictionary<Location, double> GetFirstLevel(Dictionary<Location, double> suitableLocations, Location ourLocation)
+        private static Dictionary<Location, double> GetFirstLayer(
+            Dictionary<Location, double> suitableLocations,
+            Location ourLocation)
         {
             return ourLocation.Neighborhood
                 .Where(suitableLocations.ContainsKey)
                 .ToDictionary(location => location, location => suitableLocations[location]);
         }
 
-        private HommCommand TakeMovementDecision(Dictionary<Location, double> firstLevel)
+        private HommCommand TakeMovementDecision(Dictionary<Location, double> neighbourhood)
         {
-            var maxs = firstLevel
+            var availableNeighbours = neighbourhood
                 .Where(pair => locHelper.CanStandThere(pair.Key))
-                .OrderByDescending(pair => pair.Value)
                 .ToArray();
-            var ourLocation = CurrentData.Location.ToLocation();
-            foreach (var max in maxs)
+
+            Direction resultDirection;
+            if (availableNeighbours.Length == 0)
+                resultDirection = locHelper.GetFirstAvailableDirection();
+            else
             {
-                foreach (var direction in Constants.Directions)
-                {
-                    var neighbor = ourLocation.NeighborAt(direction);
-                    if (neighbor != max.Key)
-                        continue;
-                    return CommandGenerator.GetMoveCommand(direction);
-                }
+                var ourLocation = CurrentData.Location.ToLocation();
+                resultDirection = ourLocation.GetDirectionTo(
+                    availableNeighbours.OrderByDescending(a => a.Value).First().Key);
             }
-            var dir = locHelper.GetFirstAvailableDirection();
-            return CommandGenerator.GetMoveCommand(dir);
+
+            return CommandGenerator.GetMoveCommand(resultDirection);
         }
 
         private void TryHire()

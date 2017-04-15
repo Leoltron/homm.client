@@ -46,7 +46,7 @@ namespace Homm.Client
                                             // должен работать одинаково хорошо в обоих случаях.
             );
             var ai = new AI(client, sensorData);
-
+            ai.Run();
             /*
             var path = new[] { Direction.RightDown, Direction.RightUp, Direction.RightDown, Direction.RightUp, Direction.LeftDown, Direction.Down, Direction.RightDown, Direction.RightDown, Direction.RightUp };
             sensorData = client.HireUnits(1);
