@@ -15,7 +15,7 @@ namespace Homm.Client
             this.ai = ai;
         }
 
-        public static double GetTerrainSmell(Terrain terrain) => 0; //-Constants.CostOfMove[terrain] / 7;
+        public static double GetTerrainSmell() => 0;
 
         public double GetDwellingSmell(Dwelling dwelling)
         {
@@ -37,7 +37,7 @@ namespace Homm.Client
 
         private double GetDegreeOfNeed(Resource resource) => ai.DataHandler.GetDegreeOfNeed(resource);
 
-        public double GetMineSmell(Mine mine, string me)
+        public double GetMineSmell(Mine mine)
         {
             return mine == null || mine.Owner == ai.CurrentData.MyRespawnSide
                 ? 0

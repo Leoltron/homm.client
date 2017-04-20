@@ -1,32 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using HoMM;
 
 namespace Homm.Client
 {
     public static class Algorithms<TValue>
     {
-        public static void BFS(
-            Dictionary<Location, TValue> baseOfCompute,
-            Dictionary<Location, TValue> resultOfCompute,
-            Action<Dictionary<Location, TValue>, Dictionary<Location, TValue>, Location, TValue, int> compute,
-            Func<Location, HashSet<Location>, Dictionary<Location, TValue>, IEnumerable<Location>> getNeighbs,
-            Location startLocation, 
-            TValue startValue)
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public static IEnumerable<Tuple<Location,int>> BFS(
+            Location startLocation,
+            Dictionary<Location, TValue> locations,
+            Func<Location, HashSet<Location>, Dictionary<Location, TValue>, IEnumerable<Location>> getNeighbs)
         {
             var queue = new Queue<Tuple<Location, int>>();
             var looked = new HashSet<Location> { startLocation };
             queue.Enqueue(Tuple.Create(startLocation, 0));
             while (queue.Count != 0)
             {
-                var loc = queue.Peek().Item1;
-                var deep = queue.Dequeue().Item2;
-                compute(baseOfCompute, resultOfCompute, loc, startValue, deep);
-                var neighbs = getNeighbs(loc, looked, baseOfCompute);
-                foreach (var neighb in neighbs)
+                var locDepth = queue.Dequeue();
+                yield return locDepth;
+                foreach (var neighb in getNeighbs(locDepth.Item1, looked, locations))
                 {
                     looked.Add(neighb);
-                    queue.Enqueue(Tuple.Create(neighb, deep + 1));
+                    queue.Enqueue(Tuple.Create(neighb, locDepth.Item2 + 1));
                 }
             }
         }

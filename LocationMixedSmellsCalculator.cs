@@ -23,44 +23,38 @@ namespace Homm.Client
             AddEmptyWeights(map, smells);
             var mixedSmells = smells.ToDictionary(pair => pair.Key, pair => 0d);
             return smells.Keys
-                .Aggregate(mixedSmells, (current, key) => 
+                .Aggregate(mixedSmells, (current, key) =>
                     MixSmells(key, smells[key], current, smells));
         }
 
         private Dictionary<Location, double> MixSmells(
-            Location location,
+            Location initialLocation,
             double smellToAdd,
             Dictionary<Location, double> mixedSmells,
             Dictionary<Location, double> initialSmells)
         {
-            
             if (smellToAdd < 0)
             {
-                mixedSmells[location] = smellToAdd;
+                mixedSmells[initialLocation] = smellToAdd;
                 return mixedSmells;
             }
-            Algorithms<double>.BFS(initialSmells, mixedSmells, Mix, locHelper.GetNeighbsNextLevel, location, smellToAdd);
+            foreach (var locDepth in Algorithms<double>.BFS(initialLocation,
+                initialSmells, locHelper.GetNeighbsNextLevel))
+            {
+                var location = locDepth.Item1;
+                var spreadSmell = smellToAdd / Math.Pow(Constants.DecreaseByLevel, locDepth.Item2);
+                if (initialSmells[location] >= 0)
+                    mixedSmells[location] += spreadSmell;
+            }
             return mixedSmells;
-        }
-
-        private static void Mix(
-            Dictionary<Location, double> smells,
-            Dictionary<Location, double> mixedSmells,
-            Location location,
-            double smell,
-            int deep)
-        {
-            var spreadSmell = smell / Math.Pow(Constants.DecreaseByLevel, deep);
-            if (smells[location] >= 0)
-                mixedSmells[location] += spreadSmell;
         }
 
         private static void AddEmptyWeights(MapData map, Dictionary<Location, double> simpleWeights)
         {
             for (var i = 0; i < map.Height; i++)
-                for (var j = 0; j < map.Width; j++)
-                    if (!simpleWeights.ContainsKey(new Location(i, j)))
-                        simpleWeights.Add(new Location(i, j), 0d);
+            for (var j = 0; j < map.Width; j++)
+                if (!simpleWeights.ContainsKey(new Location(i, j)))
+                    simpleWeights.Add(new Location(i, j), 0d);
         }
     }
 }

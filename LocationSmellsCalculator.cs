@@ -30,9 +30,9 @@ namespace Homm.Client
                 return 0;
             var weight = 0d;
             weight += smellsCalc.GetPileSmell(mapObject.ResourcePile);
-            weight += smellsCalc.GetMineSmell(mapObject.Mine, ai.CurrentData.MyRespawnSide);
+            weight += smellsCalc.GetMineSmell(mapObject.Mine);
             weight += smellsCalc.GetDwellingSmell(mapObject.Dwelling);
-            weight += SmellsCalculator.GetTerrainSmell(mapObject.Terrain);
+            weight += SmellsCalculator.GetTerrainSmell();
             var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
