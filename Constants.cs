@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using HoMM;
-using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
@@ -39,16 +38,6 @@ namespace Homm.Client
             {Resource.Iron, UnitType.Infantry}
         };
 
-        public static readonly Dictionary<Terrain, double> CostOfMove = new Dictionary<Terrain, double>
-        {
-            {Terrain.Desert, TileTerrain.Desert.TravelCost},
-            {Terrain.Grass, TileTerrain.Grass.TravelCost},
-            {Terrain.Marsh, TileTerrain.Marsh.TravelCost},
-            {Terrain.Road, TileTerrain.Road.TravelCost},
-            {Terrain.Snow, TileTerrain.Snow.TravelCost}
-        };
-
         public static readonly Direction[] Directions = Enum.GetValues(typeof(Direction)).Cast<Direction>().ToArray();
-        public static readonly UnitType[] UnitTypes = Enum.GetValues(typeof(UnitType)).Cast<UnitType>().ToArray();
     }
 }

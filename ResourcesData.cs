@@ -27,7 +27,7 @@ namespace Homm.Client
             return (double) Total / resources[type];
         }
 
-        private const double MineCoefficent = 1; //TODO: Настроить коэффицент
+        private const double MineCoefficent = 1;
 
         public static ResourcesData Parse(IPlayerInfoProvider playerInfo, ILocationMapProvider mapProvider)
         {

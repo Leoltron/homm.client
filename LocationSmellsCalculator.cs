@@ -5,45 +5,40 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    public class SimpleWeights
+    public class LocationSmellsCalculator
     {
-        private readonly CoefficientsCalculator coefsCalc;
-        private readonly AI ai;
+        private readonly SmellsCalculator smellsCalc;
         private readonly LocationHelper locHelper;
-        private readonly BridgeLocator bridgeLocator;
+        private readonly AI ai;
 
-        public SimpleWeights(AI ai, LocationHelper locHelper)
+        public LocationSmellsCalculator(AI ai, LocationHelper locHelper)
         {
-            coefsCalc = new CoefficientsCalculator(ai);
             this.ai = ai;
             this.locHelper = locHelper;
-            bridgeLocator = new BridgeLocator(locHelper);
+            smellsCalc = new SmellsCalculator(ai);
         }
 
-        public Dictionary<Location, double> GetMapSimpleWeights()
+        public Dictionary<Location, double> GetMapSmells()
         {
             return locHelper.GetMapObjects()
-                .ToDictionary(pair => pair.Key, pair => GetMapObjectOwnWeight(pair.Value));
+                .ToDictionary(pair => pair.Key, pair => GetMapObjectOwnSmell(pair.Value));
         }
 
-        private double GetMapObjectOwnWeight(MapObjectData mapObject)
+        private double GetMapObjectOwnSmell(MapObjectData mapObject)
         {
             if (mapObject == null)
                 return 0;
             var weight = 0d;
-            weight += coefsCalc.GetPileCoefficient(mapObject.ResourcePile);
-            weight += coefsCalc.GetMineCoefficient(mapObject.Mine, ai.CurrentData.MyRespawnSide);
-            weight += coefsCalc.GetDwellingCoefficient(mapObject.Dwelling);
-            weight += CoefficientsCalculator.GetTerrainCoefficient(mapObject.Terrain);
+            weight += smellsCalc.GetPileSmell(mapObject.ResourcePile);
+            weight += smellsCalc.GetMineSmell(mapObject.Mine, ai.CurrentData.MyRespawnSide);
+            weight += smellsCalc.GetDwellingSmell(mapObject.Dwelling);
+            weight += SmellsCalculator.GetTerrainSmell(mapObject.Terrain);
             var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
                 var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
                 weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
             }
-            //... и тут видимо для каждого поля нужно так сделать(
-            if (bridgeLocator.IsBridge(mapObject.Location.ToLocation()))
-                weight *= 5;
             return weight;
         }
 

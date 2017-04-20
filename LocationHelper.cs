@@ -19,6 +19,19 @@ namespace Homm.Client
 
         public MapObjectData GetObjectAt(Location location) => map[location];
 
+        public Dictionary<Location, MapObjectData> GetMapObjects() => map.Map;
+
+        public IEnumerable<Location> GetNeighbsNextLevel(
+            Location location,
+            HashSet<Location> looked,
+            Dictionary<Location, double> smells)
+        {
+            return location.Neighborhood
+                .Where(neighb => !looked.Contains(neighb) &&
+                                 CanStandThere(neighb) &&
+                                 smells[neighb] >= 0);
+        }
+
         public bool CanStandThere(Location location)
         {
             if (!IsInsideMap(location, mapProvider.Map))
@@ -29,9 +42,9 @@ namespace Homm.Client
 
         public Direction GetFirstAvailableDirection()
         {
-            var curLocation = mapProvider.CurrentLocation;
+            var currentLocation = mapProvider.CurrentLocation;
             return Constants.Directions.FirstOrDefault(
-                direction => CanStandThere(curLocation.NeighborAt(direction)));
+                direction => CanStandThere(currentLocation.NeighborAt(direction)));
         }
 
         public static bool IsInsideMap(Location location, MapData map)
@@ -42,11 +55,6 @@ namespace Homm.Client
         public void UpdateData(ILocationMapProvider locationMapProvider)
         {
             map.UpdateMap(locationMapProvider);
-        }
-
-        public Dictionary<Location, MapObjectData> GetMapObjects()
-        {
-            return map.Map;
         }
     }
 }

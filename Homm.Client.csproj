@@ -57,9 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AI.cs" />
+    <Compile Include="Algorithms.cs" />
     <Compile Include="BattleCalculator.cs" />
-    <Compile Include="BridgeLocator.cs" />
-    <Compile Include="CoefficientsCalculator.cs" />
+    <Compile Include="SmellsCalculator.cs" />
     <Compile Include="CommandGenerator.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DataHandler.cs" />
@@ -79,11 +79,11 @@
     <Compile Include="Tests\DictExtTests.cs" />
     <Compile Include="HireHelper.cs" />
     <Compile Include="LocationHelper.cs" />
-    <Compile Include="LocationWeightCalculator.cs" />
+    <Compile Include="LocationMixedSmellsCalculator.cs" />
     <Compile Include="DictExtensions.cs" />
     <Compile Include="EnemyArmyData.cs" />
     <Compile Include="Homm.Client.Program.cs" />
-    <Compile Include="SimpleWeights.cs" />
+    <Compile Include="LocationSmellsCalculator.cs" />
     <Compile Include="WarFogMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourcesData.cs" />

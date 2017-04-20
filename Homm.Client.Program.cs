@@ -47,13 +47,6 @@ namespace Homm.Client
             );
             var ai = new AI(client, sensorData);
             ai.Run();
-            /*
-            var path = new[] { Direction.RightDown, Direction.RightUp, Direction.RightDown, Direction.RightUp, Direction.LeftDown, Direction.Down, Direction.RightDown, Direction.RightDown, Direction.RightUp };
-            sensorData = client.HireUnits(1);
-            foreach (var e in path)
-                sensorData = client.Move(e);
-            sensorData = client.Move(Direction.RightDown);
-            client.Exit();*/
         }
 
 

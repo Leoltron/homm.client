@@ -12,27 +12,25 @@ namespace Homm.Client
     {
         private readonly HommClient client;
 
-        private readonly LocationWeightCalculator locWeightCalc;
+        private readonly LocationMixedSmellsCalculator locMixedSmellsesCalc;
         public readonly BattleCalculator BattleCalc;
         private readonly LocationHelper locHelper;
         public readonly DataHandler DataHandler;
 
         public AI(HommClient client, HommSensorData initialData)
         {
-            this.client = client;
             DataHandler = new DataHandler(initialData);
-            this.client.OnSensorDataReceived += OnDataUpdated;
             locHelper = new LocationHelper(DataHandler);
-            locWeightCalc = new LocationWeightCalculator(this, locHelper);
             BattleCalc = new BattleCalculator(DataHandler, DataHandler);
+            this.client = client;
+            this.client.OnSensorDataReceived += OnDataUpdated;
+            locMixedSmellsesCalc = new LocationMixedSmellsCalculator(this, locHelper);
         }
 
         public void Run()
         {
             while (true)
-            {
                 NextMove();
-            }
         }
 
         public HommSensorData CurrentData => DataHandler.CurrentData;
@@ -44,14 +42,14 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var suitableLocations = locWeightCalc.GetSpreadWeights(CurrentData.Map);
-                var firstLevel = GetFirstLayer(suitableLocations);
-                Debug(suitableLocations); //смотрю коэффициенты на поле
-                OnDataUpdated(client.Act(TakeMovementDecision(firstLevel)));
+                var locationSmells = locMixedSmellsesCalc.GetMixedSmells(CurrentData.Map);
+                var neighboursSmells = GetNeighboursSmells(locationSmells);
+                Debug(locationSmells); //смотрю коэффициенты на поле
+                OnDataUpdated(client.Act(TakeMovementDecision(neighboursSmells)));
             }
         }
 
-        private Dictionary<Location, double> GetFirstLayer(
+        private Dictionary<Location, double> GetNeighboursSmells(
             Dictionary<Location, double> suitableLocations)
         {
             return CurrentData.Location.ToLocation().Neighborhood
