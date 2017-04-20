@@ -29,21 +29,21 @@ namespace Homm.Client
 
         private Dictionary<Location, double> MixSmells(
             Location location,
-            double smell,
+            double smellToAdd,
             Dictionary<Location, double> mixedSmells,
-            Dictionary<Location, double> smells)
+            Dictionary<Location, double> initialSmells)
         {
             
-            if (smell < 0)
+            if (smellToAdd < 0)
             {
-                mixedSmells[location] = smell;
+                mixedSmells[location] = smellToAdd;
                 return mixedSmells;
             }
-            Algorithms<double>.BFS(smells, mixedSmells, Mix, locHelper.GetNeighbsNextLevel, location, smell);
+            Algorithms<double>.BFS(initialSmells, mixedSmells, Mix, locHelper.GetNeighbsNextLevel, location, smellToAdd);
             return mixedSmells;
         }
 
-        void Mix(
+        private static void Mix(
             Dictionary<Location, double> smells,
             Dictionary<Location, double> mixedSmells,
             Location location,
