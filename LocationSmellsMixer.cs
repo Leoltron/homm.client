@@ -6,12 +6,12 @@ using HoMM.ClientClasses;
 
 namespace Homm.Client
 {
-    public class LocationMixedSmellsCalculator
+    public class LocationSmellsMixer
     {
         private readonly LocationSmellsCalculator locSmellsCalc;
         private readonly LocationHelper locHelper;
 
-        public LocationMixedSmellsCalculator(AI ai, LocationHelper locHelper)
+        public LocationSmellsMixer(AI ai, LocationHelper locHelper)
         {
             this.locHelper = locHelper;
             locSmellsCalc = new LocationSmellsCalculator(ai, locHelper);

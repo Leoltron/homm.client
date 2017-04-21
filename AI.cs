@@ -12,7 +12,7 @@ namespace Homm.Client
     {
         private readonly HommClient client;
 
-        private readonly LocationMixedSmellsCalculator locMixedSmellsesCalc;
+        private readonly LocationSmellsMixer locSmellsMixer;
         public readonly BattleCalculator BattleCalc;
         private readonly LocationHelper locHelper;
         public readonly DataHandler DataHandler;
@@ -24,7 +24,7 @@ namespace Homm.Client
             BattleCalc = new BattleCalculator(DataHandler, DataHandler);
             this.client = client;
             this.client.OnSensorDataReceived += OnDataUpdated;
-            locMixedSmellsesCalc = new LocationMixedSmellsCalculator(this, locHelper);
+            locSmellsMixer = new LocationSmellsMixer(this, locHelper);
         }
 
         public void Run()
@@ -42,7 +42,7 @@ namespace Homm.Client
             else
             {
                 TryHire();
-                var locationSmells = locMixedSmellsesCalc.GetMixedSmells(CurrentData.Map);
+                var locationSmells = locSmellsMixer.GetMixedSmells(CurrentData.Map);
                 var neighboursSmells = GetNeighboursSmells(locationSmells);
                 Debug(locationSmells); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(neighboursSmells)));

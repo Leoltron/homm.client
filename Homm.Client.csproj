@@ -79,7 +79,7 @@
     <Compile Include="Tests\DictExtTests.cs" />
     <Compile Include="HireHelper.cs" />
     <Compile Include="LocationHelper.cs" />
-    <Compile Include="LocationMixedSmellsCalculator.cs" />
+    <Compile Include="LocationSmellsMixer.cs" />
     <Compile Include="DictExtensions.cs" />
     <Compile Include="EnemyArmyData.cs" />
     <Compile Include="Homm.Client.Program.cs" />
