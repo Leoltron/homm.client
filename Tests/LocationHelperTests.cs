@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HoMM;
 using NUnit.Framework;
@@ -78,7 +80,7 @@ namespace Homm.Client.Tests
                 }
             }
             var locHelper = new LocationHelper(map);
-            Assert.AreEqual(holeDirection,locHelper.GetFirstAvailableDirection());
+            Assert.AreEqual(holeDirection, locHelper.GetFirstAvailableDirection());
         }
 
         [Test]
@@ -91,6 +93,81 @@ namespace Homm.Client.Tests
             objects.Add(new Location(100, 100), null);
             foreach (var location in objects.Keys)
                 Assert.AreEqual(objects[location], helper.GetObjectAt(location));
+        }
+
+        [Test]
+        public void TestGetNotStinkingNeighbs()
+        {
+            var rand = new Random();
+            var smells = new Dictionary<Location, double>();
+            var expected = new HashSet<Location>();
+            var start = new Location(2, 2);
+            smells.Add(start, 0);
+            var flag = true;
+            foreach (var location in start.Neighborhood)
+            {
+                if (flag)
+                {
+                    smells.Add(location, rand.NextDouble() * 50 + 1e-5);
+                    expected.Add(location);
+                }
+                else
+                    smells.Add(location, -(rand.NextDouble() * 50 + 1e-5));
+                flag = !flag;
+            }
+            var actual = new HashSet<Location>(
+                LocationHelper.GetUnlookedNotStinkingNeighbs(start, new HashSet<Location>(), smells)
+            );
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestGetUnlookedNeighbs()
+        {
+            var rand = new Random();
+            var smells = new Dictionary<Location, double>();
+            var expected = new HashSet<Location>();
+            var looked = new HashSet<Location>();
+            var start = new Location(2, 2);
+            smells.Add(start, 0);
+            var flag = true;
+            foreach (var location in start.Neighborhood)
+            {
+                smells.Add(location, rand.NextDouble() * 50 + 1e-5);
+                if (flag)
+                    expected.Add(location);
+                else
+                    looked.Add(location);
+                flag = !flag;
+            }
+            var actual = new HashSet<Location>(LocationHelper.GetUnlookedNotStinkingNeighbs(start, looked, smells)
+            );
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestGetUnlookedNotStinkingNeighbs()
+        {
+            var rand = new Random();
+            var smells = new Dictionary<Location, double>();
+            var expected = new HashSet<Location>();
+            var looked = new HashSet<Location>();
+            var start = new Location(2, 2);
+            smells.Add(start, 0);
+            var flag = 0;
+            foreach (var location in start.Neighborhood)
+            {
+                if (flag == 0)
+                    expected.Add(location);
+                else if (flag % 2 == 1)
+                    looked.Add(location);
+
+                smells.Add(location, (flag / 2 == 1 ? -1 : 1) * (rand.NextDouble() * 50 + 1e-5));
+                flag = (flag + 1) % 4;
+            }
+            var actual = new HashSet<Location>(LocationHelper.GetUnlookedNotStinkingNeighbs(start, looked, smells)
+            );
+            Assert.AreEqual(expected, actual);
         }
     }
 }
