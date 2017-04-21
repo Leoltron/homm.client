@@ -95,7 +95,7 @@ namespace Homm.Client
         }
 
         //вот тут их смотрю
-        private void Debug(Dictionary<Location, double> weights)
+        private void Debug(Dictionary<Location, double> smells)
         {
             var width = CurrentData.Map.Width;
             var height = CurrentData.Map.Height;
@@ -104,7 +104,7 @@ namespace Homm.Client
                 for (var j = 0; j < width; j++)
                 {
                     var loc = new Location(i, j);
-                    Console.Write(weights.ContainsKey(loc) ? $" {weights[loc]:000.00}" : "   0   ");
+                    Console.Write(smells.ContainsKey(loc) ? $" {smells[loc]:000.00}" : "   0   ");
                 }
                 Console.WriteLine();
             }

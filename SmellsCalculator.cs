@@ -21,7 +21,7 @@ namespace Homm.Client
         {
             var canHire = HireHelper.HowManyCanHire(dwelling, ai.CurrentData.MyTreasury);
             return dwelling != null && canHire >= 1
-                ? Constants.OneScoreWeight
+                ? Constants.OneScoreCoefficient
                 : 0;
         }
 
@@ -32,7 +32,7 @@ namespace Homm.Client
                 ? 0
                 : (HommRules.Current.ResourcesGainScores 
                     + pile.Amount * GetDegreeOfNeed(pile.Resource)) 
-                  * Constants.OneScoreWeight;
+                  * Constants.OneScoreCoefficient;
         }
 
         private double GetDegreeOfNeed(Resource resource) => ai.DataHandler.GetDegreeOfNeed(resource);

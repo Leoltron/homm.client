@@ -28,6 +28,7 @@ namespace Homm.Client
         {
             return location.Neighborhood
                 .Where(neighb => !looked.Contains(neighb) &&
+                                 smells.ContainsKey(neighb) &&
                                  smells[neighb] >= 0);
         }
 

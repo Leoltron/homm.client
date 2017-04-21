@@ -20,7 +20,6 @@ namespace Homm.Client
         public Dictionary<Location, double> GetMixedSmells(MapData map)
         {
             var smells = locSmellsCalc.GetMapSmells();
-            AddEmptyWeights(map, smells);
             var mixedSmells = smells.ToDictionary(pair => pair.Key, pair => 0d);
             return smells.Keys
                 .Aggregate(mixedSmells, (current, key) =>
@@ -47,14 +46,6 @@ namespace Homm.Client
                     mixedSmells[location] += spreadSmell;
             }
             return mixedSmells;
-        }
-
-        private static void AddEmptyWeights(MapData map, Dictionary<Location, double> simpleWeights)
-        {
-            for (var i = 0; i < map.Height; i++)
-            for (var j = 0; j < map.Width; j++)
-                if (!simpleWeights.ContainsKey(new Location(i, j)))
-                    simpleWeights.Add(new Location(i, j), 0d);
         }
     }
 }
