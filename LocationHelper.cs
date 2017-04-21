@@ -21,14 +21,13 @@ namespace Homm.Client
 
         public Dictionary<Location, MapObjectData> GetMapObjects() => map.Map;
 
-        public IEnumerable<Location> GetNeighbsNextLevel(
+        public static IEnumerable<Location> GetUnlookedNotStinkingNeighbs(
             Location location,
             HashSet<Location> looked,
             Dictionary<Location, double> smells)
         {
             return location.Neighborhood
                 .Where(neighb => !looked.Contains(neighb) &&
-                                 CanStandThere(neighb) &&
                                  smells[neighb] >= 0);
         }
 
