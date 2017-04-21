@@ -39,10 +39,12 @@ namespace Homm.Client
                 return mixedSmells;
             }
             foreach (var locDepth in Algorithms<double>.BFS(initialLocation,
-                initialSmells, LocationHelper.GetUnlookedNotStinkingNeighbs).Where(ld => locHelper.CanStandThere(ld.Item1)))
+                initialSmells, LocationHelper.GetUnlookedNotStinkingNeighbs)
+                .Where(ld => locHelper.CanStandThere(ld.Item1)))
             {
                 var location = locDepth.Item1;
-                var spreadSmell = smellToAdd / Math.Pow(Constants.DecreaseByLevel, locDepth.Item2);
+                var depth = locDepth.Item2;
+                var spreadSmell = smellToAdd / Math.Pow(Constants.DecreaseByLevel, depth);
                 if (initialSmells[location] >= 0)
                     mixedSmells[location] += spreadSmell;
             }
