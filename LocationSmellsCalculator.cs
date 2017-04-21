@@ -28,18 +28,18 @@ namespace Homm.Client
         {
             if (mapObject == null)
                 return 0;
-            var weight = 0d;
-            weight += smellsCalc.GetPileSmell(mapObject.ResourcePile);
-            weight += smellsCalc.GetMineSmell(mapObject.Mine);
-            weight += smellsCalc.GetDwellingSmell(mapObject.Dwelling);
-            weight += SmellsCalculator.GetTerrainSmell();
+            var smell = 0d;
+            smell += smellsCalc.GetPileSmell(mapObject.ResourcePile);
+            smell += smellsCalc.GetMineSmell(mapObject.Mine);
+            smell += smellsCalc.GetDwellingSmell(mapObject.Dwelling);
+            smell += SmellsCalculator.GetTerrainSmell();
             var enemyArmy = FindEnemyArmy(mapObject);
             if (enemyArmy != null)
             {
                 var battleProfit = ai.BattleCalc.GetProfitFromAttack(enemyArmy);
-                weight = battleProfit <= 0 ? -2 : weight + Constants.BattleCoefficient * battleProfit;
+                smell = battleProfit <= 0 ? -2 : smell + Constants.BattleCoefficient * battleProfit;
             }
-            return weight;
+            return smell;
         }
 
         private Dictionary<UnitType, int> FindEnemyArmy(MapObjectData cell)

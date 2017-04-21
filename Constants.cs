@@ -11,7 +11,7 @@ namespace Homm.Client
         public const double MineCoefficent = 5817.815439391435;
         public const double ResourceRarityCoefficent = 10 / 1e3;
         public const double ArmyEfficencyCoefficent = 10 / 1e3;
-        public const double OneScoreWeight = 85222.69299239293;
+        public const double OneScoreCoefficient = 85222.69299239293;
         public const double BattleCoefficient = 5682;
         public const double DecreaseByLevel = 8;
 
