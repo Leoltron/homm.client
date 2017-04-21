@@ -44,7 +44,7 @@ namespace Homm.Client
                 TryHire();
                 var locationSmells = locSmellsMixer.GetMixedSmells(CurrentData.Map);
                 var neighboursSmells = GetNeighboursSmells(locationSmells);
-                Debug(locationSmells); //смотрю коэффициенты на поле
+                //Debug(locationSmells); //смотрю коэффициенты на поле
                 OnDataUpdated(client.Act(TakeMovementDecision(neighboursSmells)));
             }
         }
@@ -93,7 +93,7 @@ namespace Homm.Client
             DataHandler.UpdateData(data);
             locHelper.UpdateData(DataHandler);
         }
-
+        /*
         //вот тут их смотрю
         private void Debug(Dictionary<Location, double> weights)
         {
@@ -108,6 +108,6 @@ namespace Homm.Client
                 }
                 Console.WriteLine();
             }
-        }
+        }*/
     }
 }
